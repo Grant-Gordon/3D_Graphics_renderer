@@ -3,8 +3,8 @@
 #include <RenderWindow.h>
 
 
-int SCREEN_WIDTH = 256;
-int SCREEN_HEIGHT = 256;
+int SCREEN_WIDTH = 1000;
+int SCREEN_HEIGHT = 1000;
 
 int main(int argc, char* args[]) {
     //Create SDL Window
