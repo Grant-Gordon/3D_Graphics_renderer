@@ -2,9 +2,9 @@
 #include <iostream>
 
 //Window(SDL), graphic spec (openGL) and gpu-driver/spec binder (glad)
+#include <glad/glad.h>
 #include <SDL.h>
 #include <SDL_image.h>
-#include <glad/glad.h>
 //My files
 #include "RenderWindow.h"
 
@@ -45,11 +45,11 @@ int main() {
     
     if (renderer == NULL){
         printf("Renderer could not be created. SDL Error: %s\n", SDL_GetError());
-        return -1
+        return -1;
     }
     
     //create GL Context
-    SDL_GLContext gContext = SDL_GL_CreateContext(window); //TODO: passing in reference to RenderWindow not SDL windo
+    SDL_GLContext gContext = SDL_GL_CreateContext(window.GetWindow()); //TODO: passing in reference to RenderWindow not SDL windo
     if ( gContext == NULL){
         printf(" OpenGL context could not be created. SDL Error: %s\n", SDL_GetError() );
         return -1;
@@ -117,7 +117,7 @@ int main() {
     glGenBuffers(1, &VBO);
 
     //Make VAO the currect VAO by binding it
-    glBindVertexArray(VAO)
+    glBindVertexArray(VAO);
     //bind buffers
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
@@ -125,13 +125,13 @@ int main() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); //STATIC_DRAW=used many times, STREAM_DRAW = used a few, DYNAMIC DRAW= shanged a lot and used a lot
 
     //Confif v attr so gl knows how to read VBO
-    glVertexAttributePointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void)*0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     // enable v attr so gl knows to use it
-    glEnableVertexAttributeArray(0);
+    glEnableVertexAttribArray(0);
 
 
     //bind VBO and VAO to 0 to prevent them from being modified
-    glbindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
     
     
@@ -142,7 +142,7 @@ int main() {
     while (!windowShouldClose) {
         while (SDL_PollEvent(&event) != 0){
             if (event.type == SDL_QUIT) {
-                gameRunning = false;
+                windowShouldClose = false;
             }
         }
         //set Renderer color
@@ -157,7 +157,7 @@ int main() {
         glUseProgram(shaderProgram);
 
         //bind VAO so gl knows to use it
-        glBindVertexArray(VAO)
+        glBindVertexArray(VAO);
 
         //Draw Triangle using gl primitives
         glDrawArrays(GL_TRIANGLES, 0, 3);

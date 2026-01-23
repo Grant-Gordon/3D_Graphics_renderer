@@ -7,6 +7,7 @@ class RenderWindow{
     public:
         RenderWindow(const char* title, int width, int height);
         SDL_Renderer* GetRenderer();
+        SDL_Window* GetWindow();
         void close();
 
     private:

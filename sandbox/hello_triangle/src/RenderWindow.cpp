@@ -20,6 +20,10 @@ SDL_Renderer* RenderWindow::GetRenderer(){
     return renderer;
 }
 
+SDL_Window* RenderWindow::GetWindow(){
+    return window;
+}
+
 void RenderWindow::close(){
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
