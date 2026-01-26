@@ -13,19 +13,18 @@ int SCREEN_WIDTH = 256;
 int SCREEN_HEIGHT = 256;
 
 //Vertex shader source code
-const char* vertexShaderSource = "#version 330 core\n"
+const char *vertexShaderSource = "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
     "void main()\n"
     "{\n"
     "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
     "}\0";
 
-
 const char* fragmentShaderSource = "#version 330 core\n"
     "out vec4 FragColor;\n"
     "void main()\n"
     "{\n"
-    "FragColor = vec4(0.8f, 0.3f, 0.02f, 1.0f)'\n"
+    "    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
     "}\n\0";
 
 
@@ -71,6 +70,15 @@ int main() {
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
     // compile Shader to machine code
     glCompileShader(vertexShader);
+    int success;
+    char infolog[512];
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    if(!success){
+        glGetShaderInfoLog(vertexShader, 512, NULL, infolog);
+        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infolog << std::endl;
+    }else{
+        std::cout << "SUCCESS::SHADER::VERTEX:COMPILATION" << std::endl;
+    }
 
     //fragment shader colors pixels in yo polygon 
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -79,6 +87,13 @@ int main() {
     // Compule shader to Machine code 
     glCompileShader(fragmentShader);
 
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    if(!success){
+        glGetShaderInfoLog(fragmentShader, 512, NULL, infolog);
+        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infolog << std::endl;
+    }else{
+        std::cout << "SUCCESS::SHADER::FRAGMENT::COMPILATION" << std::endl;
+    }
     //Create Shader program obj
     GLuint shaderProgram = glCreateProgram();
     // Attach shaders
@@ -87,6 +102,15 @@ int main() {
     // Wrap-up/Link all shaders into shader program
     glLinkProgram(shaderProgram); 
 
+    //test program compilation
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if (!success){
+        glGetProgramInfoLog(shaderProgram, 512, NULL, infolog);
+        std::cout << "ERROR::SHADERPROGRAM::LINK_FAILURE\n" << infolog << std::endl;
+    }else{
+        std::cout << "SUCCESS::SHADERPROGRAM::LINK\n" << std::endl;
+    }
+    glUseProgram(shaderProgram);
     // Can delete shader objs (now that in program?)
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
@@ -142,11 +166,12 @@ int main() {
     while (!windowShouldClose) {
         while (SDL_PollEvent(&event) != 0){
             if (event.type == SDL_QUIT) {
-                windowShouldClose = false;
+                windowShouldClose = true;
             }
         }
         //set Renderer color
-        SDL_SetRenderDrawColor(renderer, 169, 169, 169, 1);
+        //SDL_SetRenderDrawColor(renderer, 255, 19, 16, 1);
+        
         //Alternative way to set background?
         //glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
         
