@@ -5,8 +5,6 @@
 #include <glad/glad.h>
 #include <SDL.h>
 #include <SDL_image.h>
-//My files
-#include "RenderWindow.h"
 
 
 int SCREEN_WIDTH = 256;
@@ -38,29 +36,27 @@ int main() {
         return -1;
     }
     
-    //Create SDL Window and Renderer
-    RenderWindow window("SDL Window", SCREEN_WIDTH, SCREEN_HEIGHT);
-    SDL_Renderer* renderer = window.GetRenderer();
-    
-    if (renderer == NULL){
-        printf("Renderer could not be created. SDL Error: %s\n", SDL_GetError());
+    SDL_Window* SDL_window = SDL_CreateWindow("test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL );
+    if (SDL_window == NULL){
+        printf("Window could not be created. SDL Error: %s\n", SDL_GetError());
         return -1;
     }
-    
+
     //create GL Context
-    SDL_GLContext gContext = SDL_GL_CreateContext(window.GetWindow()); //TODO: passing in reference to RenderWindow not SDL windo
-    if ( gContext == NULL){
-        printf(" OpenGL context could not be created. SDL Error: %s\n", SDL_GetError() );
+    SDL_GLContext glContext = SDL_GL_CreateContext(SDL_window); 
+    if ( glContext == NULL){
+        printf("OpenGL context could not be created. SDL Error: %s\n", SDL_GetError() );
         return -1;
     }
+
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    
     
     //glad: laod all OpenGL function pointers
     if (!gladLoadGLLoader((SDL_GL_GetProcAddress))){
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
-    bool windowShouldClose = false;
-    SDL_Event event;
     
     
     
@@ -163,20 +159,19 @@ int main() {
     //===========================================
     // Game Loop
     //===========================================
+    bool windowShouldClose = false;
+    SDL_Event event;
+    
     while (!windowShouldClose) {
         while (SDL_PollEvent(&event) != 0){
             if (event.type == SDL_QUIT) {
                 windowShouldClose = true;
             }
         }
-        //set Renderer color
-        //SDL_SetRenderDrawColor(renderer, 255, 19, 16, 1);
         
-        //Alternative way to set background?
-        //glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+        //set background color / clear screen
+        glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
         
-        //Clear screen
-        SDL_RenderClear(renderer);
         
         //tell gl which shader program to use
         glUseProgram(shaderProgram);
@@ -187,10 +182,7 @@ int main() {
         //Draw Triangle using gl primitives
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
-
-        //update screen (I beleive this swaps buffers via copy --hence clear buffer at start of game loop. SDL i think handles double buffer automatically)
-        SDL_RenderPresent(renderer);
-
+        SDL_GL_SwapWindow(SDL_window);        
     }
 
     //===========================================
@@ -199,7 +191,6 @@ int main() {
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteProgram(shaderProgram);
-    window.close();
-
+    SDL_DestroyWindow(SDL_window);
     return 0;
 }
