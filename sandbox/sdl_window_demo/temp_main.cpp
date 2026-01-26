@@ -33,7 +33,7 @@ int main(int argc, char* args[]) {
         }
 
         //set Renderer colo
-        SDL_SetRenderDrawColor(renderer, 169, 169, 169, 1);
+        SDL_SetRenderDrawColor(renderer, 250, 169, 169, 1);
 
         //Clear screen
         SDL_RenderClear(renderer);
