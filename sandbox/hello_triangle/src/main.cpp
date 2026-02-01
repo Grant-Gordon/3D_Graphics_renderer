@@ -7,8 +7,8 @@
 #include <SDL_image.h>
 
 
-int SCREEN_WIDTH = 256;
-int SCREEN_HEIGHT = 256;
+int SCREEN_WIDTH = 1024;
+int SCREEN_HEIGHT = 1024;
 
 //Vertex shader source code
 const char *vertexShaderSource = "#version 330 core\n"
@@ -35,8 +35,8 @@ int main() {
         printf("SDL could not initialize. SDL Error: %s\n", SDL_GetError());
         return -1;
     }
-    
-    SDL_Window* SDL_window = SDL_CreateWindow("test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL );
+    //TODO: glViewport(GLuint x Gluint y, width, height); // For normalizing I beleive?
+    SDL_Window* SDL_window = SDL_CreateWindow("test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     if (SDL_window == NULL){
         printf("Window could not be created. SDL Error: %s\n", SDL_GetError());
         return -1;
@@ -115,7 +115,7 @@ int main() {
     GLfloat vertices[] = {
         -0.5f, -0.5f, 0.0f,
         0.5f, -0.5f, 0.0f,
-        0.5f, -0.0f, 0.0f,
+        0.0f, 0.5f, 0.0f,
     };
 
 
