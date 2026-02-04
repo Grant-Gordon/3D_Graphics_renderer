@@ -41,9 +41,10 @@ const GLchar* fragmentShaderSource = R"glsl(
 
     out vec4 fOutColor;
     uniform sampler2D samplerTexture;
+    //unform sampler2D my other texture or whatever. 
 
     void main(){
-        fOutColor = texture(samplerTexture, vOutTexCoord );
+        fOutColor = texture(samplerTexture, vOutTexCoord) * vec4(vOutColor, 1.0);
     }
 
 
@@ -220,8 +221,6 @@ int main() {
     }
     stbi_image_free(data);
         
-    //for uniform color   //set color of triangle
-    //GLint uniColor = glGetUniformLocation(shaderProgram, "triangleColor"); 
     
     //===========================================
     // Game Loop
@@ -245,6 +244,7 @@ int main() {
         
         //bind texture
         glBindTexture(GL_TEXTURE_2D, texture);
+        //if using multiple textures, glActivateTexture(GLTEXTURE<1-16>) the bind, for each texture
         
         //tell gl which shader program to use
         glUseProgram(shaderProgram);
