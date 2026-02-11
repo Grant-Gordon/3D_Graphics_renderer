@@ -26,24 +26,22 @@ std::string TEXTURE_PATH = TEXTURE_DIR + TEXTURE_FILE;
 const GLchar* vertexShaderSource = R"glsl(
     #version 330 core
     in vec3 vInPos;
-    in vec3 vInColor;
     in vec2 vInTexCoord;
 
-    out vec3 vOutColor;
     out vec2 vOutTexCoord; 
 
-    uniform mat4 transform;
-
+    uniform mat4 model_transform;
+    uniform mat4 view_transform;
+    uniform mat4 projection_transform;
+    
     void main(){
-        gl_Position = transform * vec4(vInPos, 1.0f);
-        vOutColor=vInColor;
+        gl_Position = projection_transform * view_transform * model_transform * vec4(vInPos, 1.0f);
         vOutTexCoord=vInTexCoord;
     }
 )glsl";
 
 const GLchar* fragmentShaderSource = R"glsl(
     #version 330 core
-    in vec3 vOutColor;
     in vec2 vOutTexCoord; 
 
     out vec4 fOutColor;
@@ -51,7 +49,7 @@ const GLchar* fragmentShaderSource = R"glsl(
     //unform sampler2D my other texture or whatever. 
 
     void main(){
-        fOutColor = texture(samplerTexture, vOutTexCoord) * vec4(vOutColor, 1.0);
+        fOutColor = texture(samplerTexture, vOutTexCoord) * vec4(1.0, 1.0, 1.0 , 1.0);
     }
 
 
@@ -147,20 +145,49 @@ int main() {
 
         
         //vertex pos 
-        GLfloat vertices[] = { 
-            // positions          // colors           // texture coords
-            0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-            0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-           -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-           -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
-        };
-        //For EBO
-    //idx of 'vertices' to be drawn 
-    GLuint indices[] = {
-       0, 1, 3, //first triangle
-       1, 2, 3  //second triangle
-    };
+    float vertices[] = {
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+    };
 
     //VAO Vertex Array Object, 
     //VAO stores one or more VBO pointers. Tells GL how to interpret them 
@@ -170,37 +197,37 @@ int main() {
 
     //buffers are what is being batched CPU->GPU for reduced IO
     glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-    
+    //    glGenBuffers(1, &EBO);
+
     //Make VAO the currect VAO by binding it
     glBindVertexArray(VAO);
     
     //bind buffers
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     //copy vertex data into buffers memory
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); //STATIC_DRAW=used many times, STREAM_DRAW = used a few, DYNAMIC DRAW= shanged a lot and used a lot
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     //specify layout of vertex data
     //names need to match glsl shader vars
     //position attribute
     GLint posAttrib = glGetAttribLocation(shaderProgram, "vInPos");
     glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat),(void*)0);
+    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat),(void*)0);
     //color attribute
-    GLint colAttrib = glGetAttribLocation(shaderProgram, "vInColor");
-    glEnableVertexAttribArray(colAttrib);
-    glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3* sizeof(GL_FLOAT)));
+   // GLint colAttrib = glGetAttribLocation(shaderProgram, "vInColor");
+    //glEnableVertexAttribArray(colAttrib);
+   // glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3* sizeof(GL_FLOAT)));
     //texture coord attribute
     GLuint texAttrib = glGetAttribLocation(shaderProgram, "vInTexCoord");
     glEnableVertexAttribArray(texAttrib);
-    glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
     //Binding has to come AFTER glVertexAttribPointer (yet learnOpenGL doesn't)
     //bind VBO and VAO to 0 to prevent them from being modified;;
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBindVertexArray(0);
 
     //========================
@@ -253,20 +280,37 @@ int main() {
         glBindTexture(GL_TEXTURE_2D, texture);
         //if using multiple textures, glActivateTexture(GLTEXTURE<1-16>) the bind, for each texture
         
-        // create tansformations
-        glm::mat4 transform = glm::mat4(1.0f);
-        transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));        
-        transform = glm::rotate(transform,(float)(SDL_GetTicks64()/1000.0), glm::vec3(0.0f, 0.0f, 1.0f));
-        GLuint transformLoc(glGetUniformLocation(shaderProgram, "transform"));
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
-        //tell gl which shader program to use
+        // create tansformations - instantiate matrices
+        glm::mat4 model_transform = glm::mat4(1.0f);
+        glm::mat4 view_transform = glm::mat4(1.0f);
+        glm::mat4 projection_transform = glm::mat4(1.0f);
+        //set mat vals
+       // model_transform = glm::translate(model_transform,  glm::vec3(0.5f, -0.5f, 0.0f));        
+        //model_transform = glm::rotate(model_transform,(float)(SDL_GetTicks64()/1000.0), glm::vec3(0.0f, 0.0f, 1.0f));
+        model_transform = glm::rotate(model_transform, (float)(SDL_GetTicks64()/1000.0), glm::vec3(0.5f, 1.0f, 0.0f));
+
+        view_transform= glm::translate(view_transform, glm::vec3(0.0f, 0.0f, -3.0f));
+        projection_transform = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 1.0f, 100.0f);
+        //retrieve unform locations
+        GLuint modelLoc(glGetUniformLocation(shaderProgram, "model_transform"));
+        GLuint viewLoc(glGetUniformLocation(shaderProgram, "view_transform"));
+        GLuint projectionLoc(glGetUniformLocation(shaderProgram, "projection_transform"));
+        //pass values to the shaders
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model_transform));
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view_transform));
+        //Often good pracrice to set outside of the main loop as projection matrix rarely changes
+        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_transform));
+        
+
+
         glUseProgram(shaderProgram);
 
         //bind VAO so gl knows to use it
         glBindVertexArray(VAO);
 
         //Draw Triangle using gl primitives
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); 
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        //    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0); 
         SDL_GL_SwapWindow(SDL_window);        
     }
 
