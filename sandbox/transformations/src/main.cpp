@@ -19,7 +19,6 @@ std::string TEXTURE_DIR = "/home/emergentstupidity/persProj/3D_Graphics_renderer
 std::string TEXTURE_FILE = "container.jpg";
 std::string TEXTURE_PATH = TEXTURE_DIR + TEXTURE_FILE;
 
-
 //Vertex shader source code
 
 //Vertex shader out, and fragment shader in must have same name
@@ -88,6 +87,7 @@ int main() {
     }
    
     glViewport(0,0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    glEnable(GL_DEPTH_TEST); 
     
     
     //vertex shader doing the actual vertex position transformations. 
@@ -274,7 +274,7 @@ int main() {
 
         //sets what the background color will clear to when glClear() is called
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         //bind texture
         glBindTexture(GL_TEXTURE_2D, texture);
