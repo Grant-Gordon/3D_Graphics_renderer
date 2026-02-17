@@ -300,19 +300,11 @@ int main() {
         //set mat vals
        // model_transform = glm::translate(model_transform,  glm::vec3(0.5f, -0.5f, 0.0f));        
         //model_transform = glm::rotate(model_transform,(float)(SDL_GetTicks64()/1000.0), glm::vec3(0.0f, 0.0f, 1.0f));
-        model_transform = glm::rotate(model_transform, (float)(SDL_GetTicks64()/1000.0), glm::vec3(0.5f, 1.0f, 0.0f));
-
-        view_transform= glm::translate(view_transform, glm::vec3(0.0f, 0.0f, -3.0f));
-        projection_transform = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 1.0f, 100.0f);
         //retrieve unform locations
         GLuint modelLoc(glGetUniformLocation(shaderProgram, "model_transform"));
         GLuint viewLoc(glGetUniformLocation(shaderProgram, "view_transform"));
         GLuint projectionLoc(glGetUniformLocation(shaderProgram, "projection_transform"));
         //pass values to the shaders
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model_transform));
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view_transform));
-        //Often good pracrice to set outside of the main loop as projection matrix rarely changes
-        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_transform));
         
 
 
@@ -323,11 +315,17 @@ int main() {
 
         //Draw Triangle using gl primitives
         for(GLuint i=0; i < 10; i++){
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, cubePositions[i]);
-            float angle = 20.0f * i;
-            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+            model_transform = glm::rotate(model_transform, (float)(SDL_GetTicks64()/1000.0), glm::vec3(0.5f, 1.0f, 0.0f));
+            model_transform = glm::translate(model_transform, cubePositions[i]);
+
+            view_transform= glm::translate(view_transform, glm::vec3(0.0f, 0.0f,-23.0f));
+            projection_transform = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 1.0f, 500.0f);
+            // model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model_transform));
+            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view_transform));
+            //Often good pracrice to set outside of the main loop as projection matrix rarely changes
+            glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_transform));
             glDrawArrays(GL_TRIANGLES, 0, 36);
 
         }
