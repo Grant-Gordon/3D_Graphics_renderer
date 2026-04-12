@@ -21,6 +21,7 @@ target_include_directories(glad PUBLIC
 # add executable =  src code, i.e. cpp files I want compiled to .objs, that are then linked| .h files dont need to be compiled but can be just for IDE sanity. 
 add_executable(camera 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/camera.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/externals/stb_image.cpp"
 )
 
