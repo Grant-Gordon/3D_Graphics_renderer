@@ -64,13 +64,8 @@ int main() {
     }
     // TODO: glViewport(GLuint x Gluint y, width, height); // For normalizing I
     // beleive?
-    SDL_Window* SDL_window = SDL_CreateWindow(
-        "test",
-        SDL_WINDOWPOS_UNDEFINED,
-        SDL_WINDOWPOS_UNDEFINED,
-        SCREEN_WIDTH,
-        SCREEN_HEIGHT,
-        SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+    SDL_Window* SDL_window = SDL_CreateWindow("test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH,
+        SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     if(SDL_window == NULL) {
         printf("Window could not be created. SDL Error: %s\n", SDL_GetError());
         return -1;
@@ -80,8 +75,7 @@ int main() {
     // create GL Context
     SDL_GLContext glContext = SDL_GL_CreateContext(SDL_window);
     if(glContext == NULL) {
-        printf("OpenGL context could not be created. SDL Error: %s\n",
-            SDL_GetError());
+        printf("OpenGL context could not be created. SDL Error: %s\n", SDL_GetError());
         return -1;
     }
 
@@ -105,8 +99,7 @@ int main() {
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
     if(!success) {
         glGetShaderInfoLog(vertexShader, 512, NULL, infolog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
-                  << infolog << std::endl;
+        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infolog << std::endl;
     } else {
         std::cout << "SUCCESS::SHADER::VERTEX:COMPILATION" << std::endl;
     }
@@ -121,8 +114,7 @@ int main() {
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     if(!success) {
         glGetShaderInfoLog(fragmentShader, 512, NULL, infolog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n"
-                  << infolog << std::endl;
+        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infolog << std::endl;
     } else {
         std::cout << "SUCCESS::SHADER::FRAGMENT::COMPILATION" << std::endl;
     }
@@ -140,11 +132,9 @@ int main() {
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
     if(!success) {
         glGetProgramInfoLog(shaderProgram, 512, NULL, infolog);
-        std::cout << "ERROR::SHADERPROGRAM::LINK_FAILURE\n"
-                  << infolog << std::endl;
+        std::cout << "ERROR::SHADERPROGRAM::LINK_FAILURE\n" << infolog << std::endl;
     } else {
-        std::cout << "SUCCESS::SHADERPROGRAM::LINK\n"
-                  << std::endl;
+        std::cout << "SUCCESS::SHADERPROGRAM::LINK\n" << std::endl;
     }
     glUseProgram(shaderProgram);
     // Can delete shader objs (now that in program?)
@@ -152,207 +142,53 @@ int main() {
     glDeleteShader(fragmentShader);
 
     // vertex pos
+    // clang-format off
     float vertices[] = {
-        -0.5f,
-        -0.5f,
-        -0.5f,
-        0.0f,
-        0.0f,
-        0.5f,
-        -0.5f,
-        -0.5f,
-        1.0f,
-        0.0f,
-        0.5f,
-        0.5f,
-        -0.5f,
-        1.0f,
-        1.0f,
-        0.5f,
-        0.5f,
-        -0.5f,
-        1.0f,
-        1.0f,
-        -0.5f,
-        0.5f,
-        -0.5f,
-        0.0f,
-        1.0f,
-        -0.5f,
-        -0.5f,
-        -0.5f,
-        0.0f,
-        0.0f,
-
-        -0.5f,
-        -0.5f,
-        0.5f,
-        0.0f,
-        0.0f,
-        0.5f,
-        -0.5f,
-        0.5f,
-        1.0f,
-        0.0f,
-        0.5f,
-        0.5f,
-        0.5f,
-        1.0f,
-        1.0f,
-        0.5f,
-        0.5f,
-        0.5f,
-        1.0f,
-        1.0f,
-        -0.5f,
-        0.5f,
-        0.5f,
-        0.0f,
-        1.0f,
-        -0.5f,
-        -0.5f,
-        0.5f,
-        0.0f,
-        0.0f,
-
-        -0.5f,
-        0.5f,
-        0.5f,
-        1.0f,
-        0.0f,
-        -0.5f,
-        0.5f,
-        -0.5f,
-        1.0f,
-        1.0f,
-        -0.5f,
-        -0.5f,
-        -0.5f,
-        0.0f,
-        1.0f,
-        -0.5f,
-        -0.5f,
-        -0.5f,
-        0.0f,
-        1.0f,
-        -0.5f,
-        -0.5f,
-        0.5f,
-        0.0f,
-        0.0f,
-        -0.5f,
-        0.5f,
-        0.5f,
-        1.0f,
-        0.0f,
-
-        0.5f,
-        0.5f,
-        0.5f,
-        1.0f,
-        0.0f,
-        0.5f,
-        0.5f,
-        -0.5f,
-        1.0f,
-        1.0f,
-        0.5f,
-        -0.5f,
-        -0.5f,
-        0.0f,
-        1.0f,
-        0.5f,
-        -0.5f,
-        -0.5f,
-        0.0f,
-        1.0f,
-        0.5f,
-        -0.5f,
-        0.5f,
-        0.0f,
-        0.0f,
-        0.5f,
-        0.5f,
-        0.5f,
-        1.0f,
-        0.0f,
-
-        -0.5f,
-        -0.5f,
-        -0.5f,
-        0.0f,
-        1.0f,
-        0.5f,
-        -0.5f,
-        -0.5f,
-        1.0f,
-        1.0f,
-        0.5f,
-        -0.5f,
-        0.5f,
-        1.0f,
-        0.0f,
-        0.5f,
-        -0.5f,
-        0.5f,
-        1.0f,
-        0.0f,
-        -0.5f,
-        -0.5f,
-        0.5f,
-        0.0f,
-        0.0f,
-        -0.5f,
-        -0.5f,
-        -0.5f,
-        0.0f,
-        1.0f,
-
-        -0.5f,
-        0.5f,
-        -0.5f,
-        0.0f,
-        1.0f,
-        0.5f,
-        0.5f,
-        -0.5f,
-        1.0f,
-        1.0f,
-        0.5f,
-        0.5f,
-        0.5f,
-        1.0f,
-        0.0f,
-        0.5f,
-        0.5f,
-        0.5f,
-        1.0f,
-        0.0f,
-        -0.5f,
-        0.5f,
-        0.5f,
-        0.0f,
-        0.0f,
-        -0.5f,
-        0.5f,
-        -0.5f,
-        0.0f,
-        1.0f
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
     };
+    // clang-format on
+
     // for multiple cubes:
 
-    glm::vec3 cubePositions[] = {
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(2.0f, 5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3(2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f, 3.0f, -7.5f),
-        glm::vec3(1.3f, -2.0f, -2.5f),
-        glm::vec3(1.5f, 2.0f, -2.5f),
-        glm::vec3(1.5f, 0.2f, -1.5f),
-        glm::vec3(-1.3f, 1.0f, -1.5f)
-    };
+    glm::vec3 cubePositions[] = {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(2.0f, 5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f), glm::vec3(-3.8f, -2.0f, -12.3f), glm::vec3(2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f, 3.0f, -7.5f), glm::vec3(1.3f, -2.0f, -2.5f), glm::vec3(1.5f, 2.0f, -2.5f),
+        glm::vec3(1.5f, 0.2f, -1.5f), glm::vec3(-1.3f, 1.0f, -1.5f)};
     // VAO Vertex Array Object,
     // VAO stores one or more VBO pointers. Tells GL how to interpret them
     GLuint VAO, VBO; // EBO;
@@ -370,10 +206,7 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     // copy vertex data into buffers memory
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        sizeof(vertices),
-        vertices,
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
         GL_STATIC_DRAW); // STATIC_DRAW=used many times, STREAM_DRAW = used a few,
                          // DYNAMIC DRAW= shanged a lot and used a lot
     // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
@@ -417,8 +250,7 @@ int main() {
 
     // load and generate the texture
     int width, height, nrChannels;
-    unsigned char* data =
-        stbi_load(TEXTURE_PATH.c_str(), &width, &height, &nrChannels, 0);
+    unsigned char* data = stbi_load(TEXTURE_PATH.c_str(), &width, &height, &nrChannels, 0);
 
     if(data) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -434,13 +266,10 @@ int main() {
     bool windowShouldClose = false;
     SDL_Event event;
 
+    // camera init
     glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-    glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-    glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-    double cameraVelX = 0.0;
-    double cameraVelY = 0.0;
-    double cameraVelZ = 0.0;
-    double cameraSpeed = 5.0f;
+    Camera camera(cameraPos, );(
+
     double deltaTime = 0.0f;
     int endFrameTicks = SDL_GetTicks();
     while(!windowShouldClose) {
@@ -456,66 +285,24 @@ int main() {
                     switch(event.key.keysym.sym) {
                         case SDLK_h:
                             // left
-                            cameraVelX = -1.0;
+                            camera.ProccessKeyboard(LEFT, deltaTime);
                             break;
                         case SDLK_j:
-                            // down break;
-                            cameraVelY = -1.0;
+                            // backward
+                            camera.ProccessKeyboard(BACKWARD, deltaTime);
                             break;
                         case SDLK_k:
-                            // up
-                            cameraVelY = 1.0;
+                            // forward
+                            camera.ProccessKeyboard(FORWARD, deltaTime);
                             break;
                         case SDLK_l:
                             // right-
-                            cameraVelX = 1.0;
-                            break;
-                    }
-                    break;
-                case SDL_KEYUP:
-                    switch(event.key.keysym.sym) {
-                        case SDLK_h:
-                            // left
-                            if(cameraVelX < 0) {
-                                cameraVelX = 0;
-                            }
-                            break;
-                        case SDLK_j:
-                            // down break;
-                            if(cameraVelY < 0) {
-                                cameraVelY = 0;
-                            }
-                            break;
-                        case SDLK_k:
-                            // up
-                            if(cameraVelY > 0) {
-                                cameraVelY = 0;
-                            }
-                            break;
-                        case SDLK_l:
-                            // right
-                            if(cameraVelX > 0) {
-                                cameraVelX = 0;
-                            }
+                            camera.ProccessKeyboard(RIGHT, deltaTime);
                             break;
                     }
                     break;
             }
         }
-        if(deltaTime == 0) {
-            std::cout << "deltaTime 0" << std::endl;
-            std::cout << endFrameTicks << ", " << startFrameTicks << std::endl;
-        }
-        double cameraPosUpdateX = (cameraVelX * cameraSpeed * deltaTime);
-        double cameraPosUpdateY = (cameraVelY * cameraSpeed * deltaTime);
-        if(cameraPosUpdateX > 0) {
-            std::cout << "CAMERAUPDATE::X = " << cameraPosUpdateX << std::endl;
-        }
-        if(cameraPosUpdateY > 0) {
-            std::cout << "CAMERAUPDATE::Y = " << cameraPosUpdateY << std::endl;
-        }
-        cameraPos.x += cameraPosUpdateX;
-        cameraPos.y += cameraPosUpdateY;
         // sets what the background color will clear to when glClear() is called
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -533,8 +320,7 @@ int main() {
         // glm::vec3(0.0f, 0.0f, 1.0f)); retrieve unform locations
         GLuint modelLoc(glGetUniformLocation(shaderProgram, "model_transform"));
         GLuint viewLoc(glGetUniformLocation(shaderProgram, "view_transform"));
-        GLuint projectionLoc(
-            glGetUniformLocation(shaderProgram, "projection_transform"));
+        GLuint projectionLoc(glGetUniformLocation(shaderProgram, "projection_transform"));
         // pass values to the shaders
 
         glUseProgram(shaderProgram);
@@ -551,19 +337,13 @@ int main() {
             glm::mat4 projection_transform = glm::mat4(1.0f);
 
             model_transform = glm::translate(model_transform, cubePositions[i]);
-            model_transform = glm::rotate(model_transform,
-                (float)(SDL_GetTicks64() / 1000.0 + i * 2),
-                glm::vec3(1.0f, 1.0f, 1.0f));
-            view_transform =
-                glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-
+            model_transform =
+                glm::rotate(model_transform, (float)(SDL_GetTicks64() / 1000.0 + i * 2), glm::vec3(1.0f, 1.0f, 1.0f));
+            view_transform = camera.GetViewMatrix();
             // view_transform= glm::translate(view_transform, glm::vec3(0.0f,
             // 0.0f,-05.0f));
-            projection_transform = glm::perspective(
-                glm::radians(45.0f),
-                (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT,
-                1.0f,
-                100.0f);
+            projection_transform =
+                glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 1.0f, 100.0f);
             // model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f,
             // 0.5f));
 

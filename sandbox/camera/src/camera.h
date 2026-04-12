@@ -56,5 +56,5 @@ public:
 
 private:
     void updateCameraVector();
-}
+};
 #endif // CAMERA_H

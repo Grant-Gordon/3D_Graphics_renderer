@@ -9,27 +9,33 @@ const float SPEED;
 const float SENSITIVITY;
 const float ZOOM;
 
-class camera {
+class Camera {
 public:
     // Constructor with vectors
     Camera(glm::vector3 position = glm::vec3(0.0f, 0.0f, 0.0f),
         glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
         float yaw = YAW,
-        float pitch = PITCH): Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SENSITIVITY),
-                              Zoom(ZOOM), {
+        float pitch = PITCH
+
+        ):
+        Front(glm::vec3(0.0f, 0.0f, -1.0f)),
+        MovementSpeed(SENSITIVITY),
+        Zoom(ZOOM),
+    {
         Position = position;
         WorldUp = up;
         Yaw = yaw;
         Pitch = pitch;
         updateCameraVectors();
     }
-    aa
     // constructor with Scalar values
-    Camera(float posX, float posY, float posZ, float upX, float upY, float yaw, float pitch, ): Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SENSITIVITY),
-                                                                                                Zoom(ZOOM), {
+    Camera(float posX, float posY, float posZ, float upX, float upY, float yaw, float pitch, ):
+        Front(glm::vec3(0.0f, 0.0f, -1.0f)),
+        MovementSpeed(SENSITIVITY),
+        Zoom(ZOOM),
+    {
         Position = glm::vec3(posX, posY, posZ);
         WorldUp = glm::vec3(upX, upY, upZ);
-        ;
         Yaw = yaw;
         Pitch = pitch;
         updateCameraVectors();
@@ -41,6 +47,8 @@ public:
 
     void ProcessKeyboard(Camera_Movement direction float deltaTime) {
         float velocity = MovementSpeed * deltaTime;
+#include <iostream>;
+        std::cout << " CAMERAUPDATE::" << direction << " = " << velocity << std::endl;
         if(direction == FORWARD)
             Position += Front * velocity;
         if(direction == BACKWARD)
