@@ -268,7 +268,8 @@ int main() {
 
     // camera init
     glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-    Camera camera(cameraPos, );(
+    Camera camera{cameraPos};
+    Camera::CameraMovement cameraDirection;
 
     double deltaTime = 0.0f;
     int endFrameTicks = SDL_GetTicks();
@@ -285,21 +286,22 @@ int main() {
                     switch(event.key.keysym.sym) {
                         case SDLK_h:
                             // left
-                            camera.ProccessKeyboard(LEFT, deltaTime);
+                            cameraDirection = Camera::CameraMovement::LEFT;
                             break;
                         case SDLK_j:
                             // backward
-                            camera.ProccessKeyboard(BACKWARD, deltaTime);
+                            cameraDirection = Camera::CameraMovement::BACKWARD;
                             break;
                         case SDLK_k:
                             // forward
-                            camera.ProccessKeyboard(FORWARD, deltaTime);
+                            cameraDirection = Camera::CameraMovement::FORWARD;
                             break;
                         case SDLK_l:
                             // right-
-                            camera.ProccessKeyboard(RIGHT, deltaTime);
+                            cameraDirection = Camera::CameraMovement::RIGHT;
                             break;
                     }
+                    camera.ProcessKeyboard(cameraDirection, deltaTime);
                     break;
             }
         }
