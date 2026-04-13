@@ -20,11 +20,10 @@ std::string TEXTURE_DIR = PROJECT_DIR + "Textures/";
 std::string TEXTURE_FILE = "container.jpg";
 std::string TEXTURE_PATH = TEXTURE_DIR + TEXTURE_FILE;
 std::string SHADERS_DIR = PROJECT_DIR + "shaders/";
-std::string VERTEX_SHADER_PATH = SHADERS_DIR + "3.3.shader.vs" std::string FRAGMENT_SHADER_PATH = SHADERS_DIR +
-                                                                                                  "3.3.shader.fs"
+std::string VERTEX_SHADER_PATH = SHADERS_DIR + "3.3.shader.vs";
+std::string FRAGMENT_SHADER_PATH = SHADERS_DIR + "3.3.shader.fs";
 
-                                                                                                  int
-                                                                                                  main() {
+int main() {
     //===========================================
     // SDL init
     //===========================================
@@ -59,7 +58,7 @@ std::string VERTEX_SHADER_PATH = SHADERS_DIR + "3.3.shader.vs" std::string FRAGM
     glEnable(GL_DEPTH_TEST);
 
     // Vertex shader out, and fragment shader in must have same name
-    Shader::Shader(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
+    Shader shaderProgram{VERTEX_SHADER_PATH.c_str(), FRAGMENT_SHADER_PATH.c_str()};
     // TODO: idk where this line camerfrom or how to fit it into the shader abstraction
     //    glBindFragDataLocation(shaderProgram, 0, "fOutColor");
 
@@ -104,14 +103,20 @@ std::string VERTEX_SHADER_PATH = SHADERS_DIR + "3.3.shader.vs" std::string FRAGM
         -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
         -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
     };
-    // clang-format on
 
     // for multiple cubes:
 
     glm::vec3 cubePositions[] = {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(2.0f, 5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f), glm::vec3(-3.8f, -2.0f, -12.3f), glm::vec3(2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f, 3.0f, -7.5f), glm::vec3(1.3f, -2.0f, -2.5f), glm::vec3(1.5f, 2.0f, -2.5f),
-        glm::vec3(1.5f, 0.2f, -1.5f), glm::vec3(-1.3f, 1.0f, -1.5f)};
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3(2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f, 3.0f, -7.5f), 
+        glm::vec3(1.3f, -2.0f, -2.5f), 
+        glm::vec3(1.5f, 2.0f, -2.5f),
+        glm::vec3(1.5f, 0.2f, -1.5f),
+        glm::vec3(-1.3f, 1.0f, -1.5f)
+    };
+    // clang-format on
     // VAO Vertex Array Object,
     // VAO stores one or more VBO pointers. Tells GL how to interpret them
     GLuint VAO, VBO; // EBO;
@@ -129,15 +134,16 @@ std::string VERTEX_SHADER_PATH = SHADERS_DIR + "3.3.shader.vs" std::string FRAGM
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     // copy vertex data into buffers memory
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
-        GL_STATIC_DRAW); // STATIC_DRAW=used many times, STREAM_DRAW = used a few,
-                         // DYNAMIC DRAW= shanged a lot and used a lot
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    // STATIC_DRAW=used many times, STREAM_DRAW = used a few,
+    // DYNAMIC DRAW= shanged a lot and used a lot
     // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
     // GL_STATIC_DRAW);
 
     // specify layout of vertex data
     // names need to match glsl shader vars
     // position attribute
+    // TODO: doesn't match opengl's basic attribPonter + EnableVertexAttribArray
     GLint posAttrib = glGetAttribLocation(shaderProgram, "vInPos");
     glEnableVertexAttribArray(posAttrib);
     glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0);
@@ -183,6 +189,8 @@ std::string VERTEX_SHADER_PATH = SHADERS_DIR + "3.3.shader.vs" std::string FRAGM
     }
     stbi_image_free(data);
 
+    shaderProgram.use();
+    shaderProgram.setInt("texture", 0);
     //===========================================
     // Game Loop
     //===========================================
@@ -237,18 +245,11 @@ std::string VERTEX_SHADER_PATH = SHADERS_DIR + "3.3.shader.vs" std::string FRAGM
         // if using multiple textures, glActivateTexture(GLTEXTURE<1-16>) the bind,
         // for each texture
 
-        // set mat vals
-        // model_transform = glm::translate(model_transform,  glm::vec3(0.5f, -0.5f,
-        // 0.0f));
-        // model_transform =
-        // glm::rotate(model_transform,(float)(SDL_GetTicks64()/1000.0),
-        // glm::vec3(0.0f, 0.0f, 1.0f)); retrieve unform locations
         GLuint modelLoc(glGetUniformLocation(shaderProgram, "model_transform"));
         GLuint viewLoc(glGetUniformLocation(shaderProgram, "view_transform"));
         GLuint projectionLoc(glGetUniformLocation(shaderProgram, "projection_transform"));
         // pass values to the shaders
-
-        glUseProgram(shaderProgram);
+        shaderProgram.use();
 
         // bind VAO so gl knows to use it
         glBindVertexArray(VAO);
@@ -258,7 +259,7 @@ std::string VERTEX_SHADER_PATH = SHADERS_DIR + "3.3.shader.vs" std::string FRAGM
             // create tansformations - instantiate matrices. Reset for each cube
             // otherwise transform matrices accumulate;
             glm::mat4 model_transform = glm::mat4(1.0f);
-            glm::mat4 view_transform = glm::mat4(1.0f);
+            glm::mat4 view_transform = glm::mat4(1.0f);/home/emergentstupidity/projects/3D_Graphics_renderer/sandbox/camera
             glm::mat4 projection_transform = glm::mat4(1.0f);
 
             model_transform = glm::translate(model_transform, cubePositions[i]);
@@ -290,7 +291,6 @@ std::string VERTEX_SHADER_PATH = SHADERS_DIR + "3.3.shader.vs" std::string FRAGM
     //===========================================
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
-    glDeleteProgram(shaderProgram);
     SDL_DestroyWindow(SDL_window);
     return 0;
 }

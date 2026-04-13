@@ -2,7 +2,7 @@
 #define SHADER_H
 #include <string>
 
-class shader {
+class Shader {
 public:
     unsigned int ID;
 
@@ -12,11 +12,11 @@ public:
 
 
     // Utility Unifrom funcs
-    void Shader::setBool(const std::&name, bool value) const;
+    void setBool(const std::string &name, bool value) const;
 
 
-    void Shader::setInt(const std::&name, int value) const;
-    void Shader::setFloat(const std::&name, float value) const;
+    void setInt(const std::string &name, int value) const;
+    void setFloat(const std::string &name, float value) const;
 
 
 private:

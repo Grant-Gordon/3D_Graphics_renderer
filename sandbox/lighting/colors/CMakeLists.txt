@@ -1,6 +1,6 @@
 #CMakeLists.txt
 cmake_minimum_required(VERSION 3.20)
-    project( colors LANGUAGES C CXX)
+    project(colors LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -22,6 +22,7 @@ target_include_directories(glad PUBLIC
 add_executable(colors 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/camera.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/Shader.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/externals/stb_image.cpp"
 )
 
@@ -54,5 +55,5 @@ target_link_libraries(colors  PRIVATE
 
 # Optional: helpful warnings (safe defaults)
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(camera PRIVATE -Wall -Wextra -Wpedantic)
+    target_compile_options(colors PRIVATE -Wall -Wextra -Wpedantic)
 endif()
