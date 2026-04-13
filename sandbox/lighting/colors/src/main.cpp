@@ -9,52 +9,22 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 // #include <chrono>
+#include "Shader.h"
 #include "camera.h"
 #include "stb_image.h"
 
 const int SCREEN_WIDTH = 1024;
 const int SCREEN_HEIGHT = 1024;
-std::string TEXTURE_DIR = "/home/emergentstupidity/persProj/"
-                          "3D_Graphics_renderer/sandbox/texture_demo/Textures/";
+std::string PROJECT_DIR = "/home/emergentstupidity/projects/3D_Graphics_renderer/sandbox/colors/";
+std::string TEXTURE_DIR = PROJECT_DIR + "Textures/";
 std::string TEXTURE_FILE = "container.jpg";
 std::string TEXTURE_PATH = TEXTURE_DIR + TEXTURE_FILE;
+std::string SHADERS_DIR = PROJECT_DIR + "shaders/";
+std::string VERTEX_SHADER_PATH = SHADERS_DIR + "3.3.shader.vs" std::string FRAGMENT_SHADER_PATH = SHADERS_DIR +
+                                                                                                  "3.3.shader.fs"
 
-// Vertex shader source code
-
-// Vertex shader out, and fragment shader in must have same name
-const GLchar* vertexShaderSource = R"glsl(
-    #version 330 core
-    in vec3 vInPos;
-    in vec2 vInTexCoord;
-
-    out vec2 vOutTexCoord; 
-
-    uniform mat4 model_transform;
-    uniform mat4 view_transform;
-    uniform mat4 projection_transform;
-    
-    void main(){
-        gl_Position = projection_transform * view_transform * model_transform * vec4(vInPos, 1.0f);
-        vOutTexCoord=vInTexCoord;
-    }
-)glsl";
-
-const GLchar* fragmentShaderSource = R"glsl(
-    #version 330 core
-    in vec2 vOutTexCoord; 
-
-    out vec4 fOutColor;
-    uniform sampler2D samplerTexture;
-    //unform sampler2D my other texture or whatever. 
-
-    void main(){
-        fOutColor = texture(samplerTexture, vOutTexCoord) * vec4(1.0, 1.0, 1.0 , 1.0);
-    }
-
-
-)glsl";
-
-int main() {
+                                                                                                  int
+                                                                                                  main() {
     //===========================================
     // SDL init
     //===========================================
@@ -88,58 +58,11 @@ int main() {
     glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     glEnable(GL_DEPTH_TEST);
 
-    // vertex shader doing the actual vertex position transformations.
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    // Attach shdr src to vertex shader obj
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    // compile Shader to machine code
-    glCompileShader(vertexShader);
-    int success;
-    char infolog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if(!success) {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infolog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infolog << std::endl;
-    } else {
-        std::cout << "SUCCESS::SHADER::VERTEX:COMPILATION" << std::endl;
-    }
+    // Vertex shader out, and fragment shader in must have same name
+    Shader::Shader(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
+    // TODO: idk where this line camerfrom or how to fit it into the shader abstraction
+    //    glBindFragDataLocation(shaderProgram, 0, "fOutColor");
 
-    // fragment shader colors pixels in yo polygon
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    // Attach frag shdr src to obj
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    // Compule shader to Machine code
-    glCompileShader(fragmentShader);
-
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if(!success) {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infolog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infolog << std::endl;
-    } else {
-        std::cout << "SUCCESS::SHADER::FRAGMENT::COMPILATION" << std::endl;
-    }
-    // Create Shader program obj
-    GLuint shaderProgram = glCreateProgram();
-    // Attach shaders
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glBindFragDataLocation(shaderProgram, 0, "fOutColor");
-
-    // Wrap-up/Link all shaders into shader program
-    glLinkProgram(shaderProgram);
-
-    // test program compilation
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if(!success) {
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infolog);
-        std::cout << "ERROR::SHADERPROGRAM::LINK_FAILURE\n" << infolog << std::endl;
-    } else {
-        std::cout << "SUCCESS::SHADERPROGRAM::LINK\n" << std::endl;
-    }
-    glUseProgram(shaderProgram);
-    // Can delete shader objs (now that in program?)
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
 
     // vertex pos
     // clang-format off
