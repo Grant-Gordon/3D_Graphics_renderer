@@ -144,7 +144,7 @@ int main() {
     // names need to match glsl shader vars
     // position attribute
     // TODO: doesn't match opengl's basic attribPonter + EnableVertexAttribArray
-    GLint posAttrib = glGetAttribLocation(shaderProgram, "vInPos");
+    GLint posAttrib = glGetAttribLocation(shaderProgram.ID, "vInPos");
     glEnableVertexAttribArray(posAttrib);
     glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0);
     // color attribute
@@ -153,7 +153,7 @@ int main() {
     // glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8 *
     // sizeof(GLfloat), (void*)(3* sizeof(GL_FLOAT)));
     // texture coord attribute
-    GLuint texAttrib = glGetAttribLocation(shaderProgram, "vInTexCoord");
+    GLuint texAttrib = glGetAttribLocation(shaderProgram.ID, "vInTexCoord");
     glEnableVertexAttribArray(texAttrib);
     glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
@@ -245,9 +245,9 @@ int main() {
         // if using multiple textures, glActivateTexture(GLTEXTURE<1-16>) the bind,
         // for each texture
 
-        GLuint modelLoc(glGetUniformLocation(shaderProgram, "model_transform"));
-        GLuint viewLoc(glGetUniformLocation(shaderProgram, "view_transform"));
-        GLuint projectionLoc(glGetUniformLocation(shaderProgram, "projection_transform"));
+        GLuint modelLoc(glGetUniformLocation(shaderProgram.ID, "model_transform"));
+        GLuint viewLoc(glGetUniformLocation(shaderProgram.ID, "view_transform"));
+        GLuint projectionLoc(glGetUniformLocation(shaderProgram.ID, "projection_transform"));
         // pass values to the shaders
         shaderProgram.use();
 
@@ -259,7 +259,7 @@ int main() {
             // create tansformations - instantiate matrices. Reset for each cube
             // otherwise transform matrices accumulate;
             glm::mat4 model_transform = glm::mat4(1.0f);
-            glm::mat4 view_transform = glm::mat4(1.0f);/home/emergentstupidity/projects/3D_Graphics_renderer/sandbox/camera
+            glm::mat4 view_transform = glm::mat4(1.0f);
             glm::mat4 projection_transform = glm::mat4(1.0f);
 
             model_transform = glm::translate(model_transform, cubePositions[i]);

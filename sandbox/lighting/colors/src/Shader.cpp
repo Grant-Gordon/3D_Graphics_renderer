@@ -33,19 +33,19 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
     const char* fShaderCode = fragmentCode.c_str();
 
     // compile shaders
-    unsigned int vertex, fragment;
+    GLuint vertex, fragment;
     // v shader
     vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vShaderCode, NULL);
     glCompileShader(vertex);
-    checkCompilerError(vertex, "VERTEX");
+    checkCompileErrors(vertex, "VERTEX");
 
 
     // f shader
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fShaderCode, NULL);
     glCompileShader(fragment);
-    checkCompilerError(fragment, "FRAGMENT");
+    checkCompileErrors(fragment, "FRAGMENT");
 
     // shader program
     this->ID = glCreateProgram();
@@ -77,21 +77,21 @@ void Shader::setFloat(const std::string &name, float value) const {
 }
 
 
-void checkCompileErrors(unsigned int shader, std::string type) {
+void Shader::checkCompileErrors(GLuint shader, std::string type) {
     int success;
     char infoLog[1024];
     if(type != "PROGRAM") {
-        glGetShaderiv(shader, GL_COMPILE)STATUS, &success);
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
         if(!success) {
             glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-            std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infLog << "\n" << std::endl;
+            std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n" << std::endl;
         } else {
 
             glGetProgramiv(shader, GL_LINK_STATUS, &success);
             if(!success) {
                 glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-                std::std::cout << "ERROR::PROGAM_LINKING_ERROR of type: " << type << "\n"
-                               << infLog << "\n"
+                std::cout << "ERROR::PROGAM_LINKING_ERROR of type: " << type << "\n"
+                               << infoLog << "\n"
                                << std::endl;
             }
         }

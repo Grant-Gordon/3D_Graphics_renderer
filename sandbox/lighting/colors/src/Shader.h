@@ -1,10 +1,10 @@
 #ifndef SHADER_H
 #define SHADER_H
 #include <string>
-
+#include <glad/glad.h>
 class Shader {
 public:
-    unsigned int ID;
+     GLuint ID;
 
     Shader(const char* vertexPath, const char* fragmentPath);
 
@@ -20,6 +20,6 @@ public:
 
 
 private:
-    void checkCompileErrors(unsigned int shader, std::string type);
+    void checkCompileErrors(GLuint shader, std::string type);
 };
 #endif // SHADER_H
