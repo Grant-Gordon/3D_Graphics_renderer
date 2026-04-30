@@ -20,8 +20,11 @@ std::string TEXTURE_DIR = PROJECT_DIR + "Textures/";
 std::string TEXTURE_FILE = "container.jpg";
 std::string TEXTURE_PATH = TEXTURE_DIR + TEXTURE_FILE;
 std::string SHADERS_DIR = PROJECT_DIR + "src/shaders/";
-std::string VERTEX_SHADER_PATH = SHADERS_DIR + "3.3.shader.vs";
-std::string FRAGMENT_SHADER_PATH = SHADERS_DIR + "3.3.shader.fs";
+std::string VERTEX_SHADER_PATH = SHADERS_DIR + "wooden_box.vs";
+std::string FRAGMENT_SHADER_PATH = SHADERS_DIR + "wooden_box.fs";
+std::string LIGHT_FRAGMENT_SHADER_PATH = SHADERS_DIR + "lightBox.fs";
+std::string LIGHT_VERTEX_SHADER_PATH = SHADERS_DIR + "lightBox.vs";
+
 
 int main() {
     //===========================================
@@ -59,10 +62,10 @@ int main() {
 
     // Vertex shader out, and fragment shader in must have same name
     Shader shaderProgram{VERTEX_SHADER_PATH.c_str(), FRAGMENT_SHADER_PATH.c_str()};
-    // TODO: idk where this line camerfrom or how to fit it into the shader abstraction
-    //    glBindFragDataLocation(shaderProgram, 0, "fOutColor");
-
-
+    Shader lightShaderProgram {
+        LIGHT_VERTEX_SHADER_PATH.c_str(), LIGHT_FRAGMENT_SHADER_PATH.c_str()
+    };
+    
     // vertex pos
     // clang-format off
     float vertices[] = {
@@ -72,41 +75,49 @@ int main() {
         0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
         -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
         -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+
         -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
         0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
         0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
         0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
         -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
         -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+
         -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
         -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
         -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
         -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
         -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
         -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+
         0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
         0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
         0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
         0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
         0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
         0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+
         -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
         0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
         0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
         0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
         -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
         -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+
         -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
         0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
         0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
         0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
         -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
         -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
+
     };
 
     // for multiple cubes:
 
-    glm::vec3 cubePositions[] = {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(2.0f, 5.0f, -15.0f),
+    glm::vec3 cubePositions[] = {
+        glm::vec3(0.0f, 0.0f, 0.0f), 
+        glm::vec3(2.0f, 5.0f, -15.0f),
         glm::vec3(-1.5f, -2.2f, -2.5f),
         glm::vec3(-3.8f, -2.0f, -12.3f),
         glm::vec3(2.4f, -0.4f, -3.5f),
@@ -117,50 +128,38 @@ int main() {
         glm::vec3(-1.3f, 1.0f, -1.5f)
     };
     // clang-format on
-    // VAO Vertex Array Object,
     // VAO stores one or more VBO pointers. Tells GL how to interpret them
-    GLuint VAO, VBO; // EBO;
+    //first fo cube vao/vbo
+    GLuint VAO, VBO;
+
     // VAO createion must come before VBO
     glGenVertexArrays(1, &VAO);
-
     // buffers are what is being batched CPU->GPU for reduced IO
     glGenBuffers(1, &VBO);
-    //    glGenBuffers(1, &EBO);
-
-    // Make VAO the currect VAO by binding it
+    // copy vertex data into buffers memory
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    // Make VAO the current VAO by binding it
     glBindVertexArray(VAO);
 
-    // bind buffers
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    // copy vertex data into buffers memory
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    // STATIC_DRAW=used many times, STREAM_DRAW = used a few,
-    // DYNAMIC DRAW= shanged a lot and used a lot
-    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
-    // GL_STATIC_DRAW);
-
-    // specify layout of vertex data
-    // names need to match glsl shader vars
-    // position attribute
-    // TODO: doesn't match opengl's basic attribPonter + EnableVertexAttribArray
+    //Get shader attrib location, and enable it.  
     GLint posAttrib = glGetAttribLocation(shaderProgram.ID, "vInPos");
+    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0); //defines array of vertex attrib data
     glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0);
-    // color attribute
-    // GLint colAttrib = glGetAttribLocation(shaderProgram, "vInColor");
-    // glEnableVertexAttribArray(colAttrib);
-    // glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE, 8 *
-    // sizeof(GLfloat), (void*)(3* sizeof(GL_FLOAT)));
+
+
+    //now config lightBox vao, (VBO stays same; vertices are teh same for light objext, also a 3d objext). 
+    GLuint lightVAO;
+    glGenVertexArrays(1, &lightVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0); //defines array of vertex attrib data
+    glEnableVertexAttribArray(posAttrib);
+
     // texture coord attribute
     GLuint texAttrib = glGetAttribLocation(shaderProgram.ID, "vInTexCoord");
     glEnableVertexAttribArray(texAttrib);
     glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
-    // Binding has to come AFTER glVertexAttribPointer (yet learnOpenGL doesn't)
-    // bind VBO and VAO to 0 to prevent them from being modified;;
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBindVertexArray(0);
 
     //========================
@@ -190,7 +189,12 @@ int main() {
     stbi_image_free(data);
 
     shaderProgram.use();
-    shaderProgram.setInt("texture", 0);
+    shaderProgram.setInt("samplerTexture", 0);
+
+    //defined outside of loop as projection rarely changes
+    glm::mat4 projection_transform = glm::mat4(1.0f);
+    projection_transform = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 1.0f, 100.0f);
+
     //===========================================
     // Game Loop
     //===========================================
@@ -245,41 +249,45 @@ int main() {
         // if using multiple textures, glActivateTexture(GLTEXTURE<1-16>) the bind,
         // for each texture
 
-        GLuint modelLoc(glGetUniformLocation(shaderProgram.ID, "model_transform"));
-        GLuint viewLoc(glGetUniformLocation(shaderProgram.ID, "view_transform"));
-        GLuint projectionLoc(glGetUniformLocation(shaderProgram.ID, "projection_transform"));
-        // pass values to the shaders
-        shaderProgram.use();
-
         // bind VAO so gl knows to use it
         glBindVertexArray(VAO);
+        
+        shaderProgram.use();
+        shaderProgram.setVec3("objectColor", 1.0f, 0.5f, 0.2f);
+        shaderProgram.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 
-        // Draw Triangle using gl primitives
+
+        // create tansformations - instantiate matrices. Reset for each cube
+        // otherwise transform matrices accumulate;
+        glm::mat4 model_transform;
+        glm::mat4 view_transform;
+        //draw normal objects (not light box)
         for(GLuint i = 0; i < 10; i++) {
-            // create tansformations - instantiate matrices. Reset for each cube
-            // otherwise transform matrices accumulate;
-            glm::mat4 model_transform = glm::mat4(1.0f);
-            glm::mat4 view_transform = glm::mat4(1.0f);
-            glm::mat4 projection_transform = glm::mat4(1.0f);
-
+            model_transform = glm::mat4(1.0f);
+            view_transform = glm::mat4(1.0f);             
             model_transform = glm::translate(model_transform, cubePositions[i]);
             model_transform =
                 glm::rotate(model_transform, (float)(SDL_GetTicks64() / 1000.0 + i * 2), glm::vec3(1.0f, 1.0f, 1.0f));
             view_transform = camera.GetViewMatrix();
-            // view_transform= glm::translate(view_transform, glm::vec3(0.0f,
-            // 0.0f,-05.0f));
-            projection_transform =
-                glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 1.0f, 100.0f);
-            // model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f,
-            // 0.5f));
-
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model_transform));
-            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view_transform));
+            shaderProgram.setMat4("model_transform", model_transform);
+            shaderProgram.setMat4("view_transform", view_transform);
             // Often good pracrice to set outside of the main loop as projection
             // matrix rarely changes
-            glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_transform));
+            shaderProgram.setMat4("projection_transform", projection_transform);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
+        //draw lightbox
+        glm::vec3 lightBoxPos = glm::vec3(2.0); //cubePositions[1];
+        lightShaderProgram.use();
+        lightShaderProgram.setMat4("model_transform", model_transform);
+        lightShaderProgram.setMat4("view_transform", view_transform);
+        model_transform = glm::mat4(1.0f);
+        model_transform = glm::translate(model_transform, lightBoxPos);
+        model_transform = glm::scale(model_transform, glm::vec3(4.0f));
+        shaderProgram.setMat4("model_transform", model_transform);
+        glBindVertexArray(lightVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
         //    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
         SDL_GL_SwapWindow(SDL_window);
         endFrameTicks = SDL_GetTicks();
