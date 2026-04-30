@@ -15,11 +15,11 @@
 
 const int SCREEN_WIDTH = 1024;
 const int SCREEN_HEIGHT = 1024;
-std::string PROJECT_DIR = "/home/emergentstupidity/projects/3D_Graphics_renderer/sandbox/colors/";
+std::string PROJECT_DIR = "/home/emergentstupidity/projects/3D_Graphics_renderer/sandbox/lighting/colors/";
 std::string TEXTURE_DIR = PROJECT_DIR + "Textures/";
 std::string TEXTURE_FILE = "container.jpg";
 std::string TEXTURE_PATH = TEXTURE_DIR + TEXTURE_FILE;
-std::string SHADERS_DIR = PROJECT_DIR + "shaders/";
+std::string SHADERS_DIR = PROJECT_DIR + "src/shaders/";
 std::string VERTEX_SHADER_PATH = SHADERS_DIR + "3.3.shader.vs";
 std::string FRAGMENT_SHADER_PATH = SHADERS_DIR + "3.3.shader.fs";
 
