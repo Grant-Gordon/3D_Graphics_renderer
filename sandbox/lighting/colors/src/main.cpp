@@ -44,7 +44,7 @@ int main() {
         return -1;
     }
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_SetRelativeMouseMode(SDL_TRUE); //for fps so mouse doesn't stop at windows edge
+    SDL_SetRelativeMouseMode(SDL_TRUE); // for fps so mouse doesn't stop at windows edge
 
     // create GL Context
     SDL_GLContext glContext = SDL_GL_CreateContext(SDL_window);
@@ -64,10 +64,8 @@ int main() {
 
     // Vertex shader out, and fragment shader in must have same name
     Shader shaderProgram{VERTEX_SHADER_PATH.c_str(), FRAGMENT_SHADER_PATH.c_str()};
-    Shader lightShaderProgram {
-        LIGHT_VERTEX_SHADER_PATH.c_str(), LIGHT_FRAGMENT_SHADER_PATH.c_str()
-    };
-    
+    Shader lightShaderProgram{LIGHT_VERTEX_SHADER_PATH.c_str(), LIGHT_FRAGMENT_SHADER_PATH.c_str()};
+
     // vertex pos
     // clang-format off
     float vertices[] = {
@@ -131,7 +129,7 @@ int main() {
     };
     // clang-format on
     // VAO stores one or more VBO pointers. Tells GL how to interpret them
-    //first fo cube vao/vbo
+    // first fo cube vao/vbo
     GLuint VAO, VBO;
 
     // VAO createion must come before VBO
@@ -144,17 +142,19 @@ int main() {
     // Make VAO the current VAO by binding it
     glBindVertexArray(VAO);
 
-    //Get shader attrib location, and enable it.  
+    // Get shader attrib location, and enable it.
     GLint posAttrib = glGetAttribLocation(shaderProgram.ID, "vInPos");
-    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0); //defines array of vertex attrib data
+    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat),
+        (void*)0); // defines array of vertex attrib data
     glEnableVertexAttribArray(posAttrib);
 
 
-    //now config lightBox vao, (VBO stays same; vertices are teh same for light objext, also a 3d objext). 
+    // now config lightBox vao, (VBO stays same; vertices are teh same for light objext, also a 3d objext).
     GLuint lightVAO;
     glGenVertexArrays(1, &lightVAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0); //defines array of vertex attrib data
+    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat),
+        (void*)0); // defines array of vertex attrib data
     glEnableVertexAttribArray(posAttrib);
 
     // texture coord attribute
@@ -193,9 +193,10 @@ int main() {
     shaderProgram.use();
     shaderProgram.setInt("samplerTexture", 0);
 
-    //defined outside of loop as projection rarely changes
+    // defined outside of loop as projection rarely changes
     glm::mat4 projection_transform = glm::mat4(1.0f);
-    projection_transform = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 1.0f, 100.0f);
+    projection_transform =
+        glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 1.0f, 100.0f);
 
     //===========================================
     // Game Loop
@@ -208,11 +209,10 @@ int main() {
     Camera camera{cameraPos};
     Camera::CameraMovement cameraDirection;
 
-    float prevMousePosX = 0.0f;
-    float prevMousePosY = 0.0f;
-
     double deltaTime = 0.0f;
     int endFrameTicks = SDL_GetTicks();
+    float xOffset = 0.0f;
+    float yOffset = 0.0f;
     while(!windowShouldClose) {
         int startFrameTicks = SDL_GetTicks();
         // user input
@@ -222,11 +222,10 @@ int main() {
                     windowShouldClose = true;
                     break;
                 case SDL_MOUSEMOTION:
-                    camera.ProcessMouseMovement((prevMousePosX - event.motion.x),(prevMousePosY - event.motion.y));
-                    prevMousePosX = event.motion.x;
-                    prevMousePosY = event.motion.y;
+                    xOffset = static_cast<float>(event.motion.xrel);
+                    yOffset = static_cast<float>(-event.motion.yrel);
+                    camera.ProcessMouseMovement(xOffset, yOffset);
                     break;
-
                 case SDL_KEYDOWN:
                     switch(event.key.keysym.sym) {
                         case SDLK_h:
@@ -253,6 +252,11 @@ int main() {
                             // right-
                             cameraDirection = Camera::CameraMovement::RIGHT;
                             break;
+                        case SDLK_q:
+                            if(SDL_GetModState() & KMOD_SHIFT) {
+                                windowShouldClose = true;
+                            }
+                            break;
                     }
                     camera.ProcessKeyboard(cameraDirection, deltaTime);
                     break;
@@ -269,7 +273,7 @@ int main() {
 
         // bind VAO so gl knows to use it
         glBindVertexArray(VAO);
-        
+
         shaderProgram.use();
         shaderProgram.setVec3("objectColor", 1.0f, 0.5f, 0.2f);
         shaderProgram.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
@@ -279,10 +283,10 @@ int main() {
         // otherwise transform matrices accumulate;
         glm::mat4 model_transform;
         glm::mat4 view_transform;
-        //draw normal objects (not light box)
+        // draw normal objects (not light box)
         for(GLuint i = 0; i < 10; i++) {
             model_transform = glm::mat4(1.0f);
-            view_transform = glm::mat4(1.0f);             
+            view_transform = glm::mat4(1.0f);
             model_transform = glm::translate(model_transform, cubePositions[i]);
             model_transform =
                 glm::rotate(model_transform, (float)(SDL_GetTicks64() / 1000.0 + i * 2), glm::vec3(1.0f, 1.0f, 1.0f));
@@ -294,8 +298,8 @@ int main() {
             shaderProgram.setMat4("projection_transform", projection_transform);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
-        //draw lightbox
-        glm::vec3 lightBoxPos = glm::vec3(2.0); //cubePositions[1];
+        // draw lightbox
+        glm::vec3 lightBoxPos = glm::vec3(2.0); // cubePositions[1];
         lightShaderProgram.use();
         lightShaderProgram.setMat4("model_transform", model_transform);
         lightShaderProgram.setMat4("view_transform", view_transform);
