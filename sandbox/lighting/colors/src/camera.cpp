@@ -47,6 +47,7 @@ void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime) {
 }
 
 void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch) {
+    //std::cout << "xOffset, yOffset: (" << xoffset << "," << yoffset << ")" << std::endl;
     xoffset *= MouseSensitivity;
     yoffset *= MouseSensitivity;
 
@@ -57,10 +58,11 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constr
     if(constrainPitch) {
         if(Pitch > 89.0f)
             Pitch = 89.0f;
-        if(Pitch < 89.0f)
+        if(Pitch < -89.0f)
             Pitch = -89.0f;
     }
 
+    //std::cout << "Yaw, Pitch: (" << Yaw << "," << Pitch << ")" << std::endl;
     // update Front, Right, UP vecs using updated euler angles
     Camera::updateCameraVector();
 }
