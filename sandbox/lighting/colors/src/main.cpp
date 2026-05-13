@@ -4,6 +4,7 @@
 // Window(SDL), graphic spec (openGL) and gpu-driver/spec binder (glad)
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_mouse.h>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -43,6 +44,7 @@ int main() {
         return -1;
     }
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_SetRelativeMouseMode(SDL_TRUE); //for fps so mouse doesn't stop at windows edge
 
     // create GL Context
     SDL_GLContext glContext = SDL_GL_CreateContext(SDL_window);
@@ -206,6 +208,9 @@ int main() {
     Camera camera{cameraPos};
     Camera::CameraMovement cameraDirection;
 
+    float prevMousePosX = 0.0f;
+    float prevMousePosY = 0.0f;
+
     double deltaTime = 0.0f;
     int endFrameTicks = SDL_GetTicks();
     while(!windowShouldClose) {
@@ -216,22 +221,35 @@ int main() {
                 case SDL_QUIT:
                     windowShouldClose = true;
                     break;
+                case SDL_MOUSEMOTION:
+                    camera.ProcessMouseMovement((prevMousePosX - event.motion.x),(prevMousePosY - event.motion.y));
+                    prevMousePosX = event.motion.x;
+                    prevMousePosY = event.motion.y;
+                    break;
 
                 case SDL_KEYDOWN:
                     switch(event.key.keysym.sym) {
                         case SDLK_h:
+                        case SDLK_a:
+                        case SDLK_LEFT:
                             // left
                             cameraDirection = Camera::CameraMovement::LEFT;
                             break;
                         case SDLK_j:
+                        case SDLK_s:
+                        case SDLK_DOWN:
                             // backward
                             cameraDirection = Camera::CameraMovement::BACKWARD;
                             break;
                         case SDLK_k:
+                        case SDLK_w:
+                        case SDLK_UP:
                             // forward
                             cameraDirection = Camera::CameraMovement::FORWARD;
                             break;
                         case SDLK_l:
+                        case SDLK_d:
+                        case SDLK_RIGHT:
                             // right-
                             cameraDirection = Camera::CameraMovement::RIGHT;
                             break;
