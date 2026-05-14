@@ -272,7 +272,7 @@ int main() {
 
         woodenBoxShaderProgram.use();
         woodenBoxShaderProgram.setVec3("objectColor", 1.0f, 0.5f, 0.2f); // orange
-        woodenBoxShaderProgram.setVec3("lightColor", 1.0f, 1.0f, 1.0f);  // white
+        woodenBoxShaderProgram.setVec3("lightColor", 0.4f, 0.1f, 1.0f); 
 
 
         // create tansformations - instantiate matrices. Reset for each cube
