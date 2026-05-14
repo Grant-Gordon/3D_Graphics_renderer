@@ -1,6 +1,6 @@
 #version 330 core
-in vec3 vInPos;
-//in vec2 vInTexCoord;
+layout(location=0) in vec3 vInPos; //EXPECTS input to be in attrib spot location=0, does NOT SET locatio
+//in vec2 vInTexCoord; //Does not need texCoord, even on same VAO, since layout defined by VAO not shader
 
 //out vec2 vOutTexCoord; 
 

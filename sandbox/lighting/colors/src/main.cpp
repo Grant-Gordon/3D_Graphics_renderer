@@ -16,17 +16,67 @@
 
 const int SCREEN_WIDTH = 1024;
 const int SCREEN_HEIGHT = 1024;
-std::string PROJECT_DIR = "/home/emergentstupidity/projects/3D_Graphics_renderer/sandbox/lighting/colors/";
+std::string PROJECT_DIR = "/home/emergentstupidity/persProj/3D_Graphics_renderer/sandbox/lighting/colors/";
 std::string TEXTURE_DIR = PROJECT_DIR + "Textures/";
 std::string TEXTURE_FILE = "container.jpg";
 std::string TEXTURE_PATH = TEXTURE_DIR + TEXTURE_FILE;
 std::string SHADERS_DIR = PROJECT_DIR + "src/shaders/";
-std::string VERTEX_SHADER_PATH = SHADERS_DIR + "wooden_box.vs";
-std::string FRAGMENT_SHADER_PATH = SHADERS_DIR + "wooden_box.fs";
+std::string VERTEX_SHADER_PATH = SHADERS_DIR + "woodenBox.vs";
+std::string FRAGMENT_SHADER_PATH = SHADERS_DIR + "woodenBox.fs";
 std::string LIGHT_FRAGMENT_SHADER_PATH = SHADERS_DIR + "lightBox.fs";
 std::string LIGHT_VERTEX_SHADER_PATH = SHADERS_DIR + "lightBox.vs";
 
+void processUserInput(
+    bool& windowShouldClose, Camera& camera, Camera::CameraMovement& cameraDirection, double& deltaTime) {
+    SDL_Event event;
 
+    while(SDL_PollEvent(&event) != 0) {
+        switch(event.type) {
+            case SDL_QUIT:
+                windowShouldClose = true;
+                break;
+            case SDL_MOUSEMOTION: { // need local scope because defining var inside case
+                camera.ProcessMouseMovement(static_cast<float>(event.motion.xrel),
+                    static_cast<float>(-event.motion.yrel));
+                break;
+            }
+            case SDL_KEYDOWN:
+                switch(event.key.keysym.sym) {
+                    case SDLK_h:
+                    case SDLK_a:
+                    case SDLK_LEFT:
+                        // left
+                        cameraDirection = Camera::CameraMovement::LEFT;
+                        break;
+                    case SDLK_j:
+                    case SDLK_s:
+                    case SDLK_DOWN:
+                        // backward
+                        cameraDirection = Camera::CameraMovement::BACKWARD;
+                        break;
+                    case SDLK_k:
+                    case SDLK_w:
+                    case SDLK_UP:
+                        // forward
+                        cameraDirection = Camera::CameraMovement::FORWARD;
+                        break;
+                    case SDLK_l:
+                    case SDLK_d:
+                    case SDLK_RIGHT:
+                        // right-
+                        cameraDirection = Camera::CameraMovement::RIGHT;
+                        break;
+                    case SDLK_q:
+                        if(SDL_GetModState() & KMOD_SHIFT) {
+                            windowShouldClose = true;
+                        }
+                        break;
+                }
+                camera.ProcessKeyboard(cameraDirection, deltaTime);
+                break;
+        }
+    }
+}
 int main() {
     //===========================================
     // SDL init
@@ -63,12 +113,12 @@ int main() {
     glEnable(GL_DEPTH_TEST);
 
     // Vertex shader out, and fragment shader in must have same name
-    Shader shaderProgram{VERTEX_SHADER_PATH.c_str(), FRAGMENT_SHADER_PATH.c_str()};
+    Shader woodenBoxShaderProgram{VERTEX_SHADER_PATH.c_str(), FRAGMENT_SHADER_PATH.c_str()};
     Shader lightShaderProgram{LIGHT_VERTEX_SHADER_PATH.c_str(), LIGHT_FRAGMENT_SHADER_PATH.c_str()};
 
     // vertex pos
     // clang-format off
-    float vertices[] = {
+    float vertices[] = { //5(x,y,z,u,v) attributes per vertex, 6 vertices per face (2 triangles), 6 faces per cube
         -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
         0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
         0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
@@ -113,8 +163,6 @@ int main() {
 
     };
 
-    // for multiple cubes:
-
     glm::vec3 cubePositions[] = {
         glm::vec3(0.0f, 0.0f, 0.0f), 
         glm::vec3(2.0f, 5.0f, -15.0f),
@@ -128,41 +176,37 @@ int main() {
         glm::vec3(-1.3f, 1.0f, -1.5f)
     };
     // clang-format on
-    // VAO stores one or more VBO pointers. Tells GL how to interpret them
-    // first fo cube vao/vbo
-    GLuint VAO, VBO;
 
-    // VAO createion must come before VBO
-    glGenVertexArrays(1, &VAO);
-    // buffers are what is being batched CPU->GPU for reduced IO
-    glGenBuffers(1, &VBO);
-    // copy vertex data into buffers memory
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    //========================
+    // VBO(data) and VAO (attrib interpretation)
+    //========================
+
+
+
+    // VBO: RAW vertex data
+    // -------------------------
+    GLuint VBO;
+    glGenBuffers(1, &VBO);              // buffers are what is being batched CPU->GPU for reduced IO
+    glBindBuffer(GL_ARRAY_BUFFER, VBO); // binds VBO to GL_ARRAY_BUFFER target (i.e sets VBO as "the one being used)
+    // allocates size and puts vertices[] data onto GPU
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    // Make VAO the current VAO by binding it
-    glBindVertexArray(VAO);
 
-    // Get shader attrib location, and enable it.
-    GLint posAttrib = glGetAttribLocation(shaderProgram.ID, "vInPos");
-    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat),
-        (void*)0); // defines array of vertex attrib data
-    glEnableVertexAttribArray(posAttrib);
+    // VAO: how VBO should be interpreted.
+    // ----------------------------------------
+    GLuint VAO;
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO); // Make VAO the current VAO by binding it
 
-
-    // now config lightBox vao, (VBO stays same; vertices are teh same for light objext, also a 3d objext).
-    GLuint lightVAO;
-    glGenVertexArrays(1, &lightVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat),
-        (void*)0); // defines array of vertex attrib data
-    glEnableVertexAttribArray(posAttrib);
-
+    // Hardcode attribute location since VAO defines attrib location.
+    // Position attribs
+    // Defines interpretation of attrib from bound VBO onto bound VAO 
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0);
     // texture coord attribute
-    GLuint texAttrib = glGetAttribLocation(shaderProgram.ID, "vInTexCoord");
-    glEnableVertexAttribArray(texAttrib);
-    glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    // buffer 3 since first 3 attribs are xyz pos
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(0); // Enable pos attrib
+    glEnableVertexAttribArray(1); // Enable tex attrib
 
-    glBindVertexArray(0);
 
     //========================
     // load and generate texture
@@ -190,8 +234,8 @@ int main() {
     }
     stbi_image_free(data);
 
-    shaderProgram.use();
-    shaderProgram.setInt("samplerTexture", 0);
+    woodenBoxShaderProgram.use();
+    woodenBoxShaderProgram.setInt("samplerTexture", 0);
 
     // defined outside of loop as projection rarely changes
     glm::mat4 projection_transform = glm::mat4(1.0f);
@@ -202,7 +246,6 @@ int main() {
     // Game Loop
     //===========================================
     bool windowShouldClose = false;
-    SDL_Event event;
 
     // camera init
     glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
@@ -211,57 +254,10 @@ int main() {
 
     double deltaTime = 0.0f;
     int endFrameTicks = SDL_GetTicks();
-    float xOffset = 0.0f;
-    float yOffset = 0.0f;
     while(!windowShouldClose) {
         int startFrameTicks = SDL_GetTicks();
         // user input
-        while(SDL_PollEvent(&event) != 0) {
-            switch(event.type) {
-                case SDL_QUIT:
-                    windowShouldClose = true;
-                    break;
-                case SDL_MOUSEMOTION:
-                    xOffset = static_cast<float>(event.motion.xrel);
-                    yOffset = static_cast<float>(-event.motion.yrel);
-                    camera.ProcessMouseMovement(xOffset, yOffset);
-                    break;
-                case SDL_KEYDOWN:
-                    switch(event.key.keysym.sym) {
-                        case SDLK_h:
-                        case SDLK_a:
-                        case SDLK_LEFT:
-                            // left
-                            cameraDirection = Camera::CameraMovement::LEFT;
-                            break;
-                        case SDLK_j:
-                        case SDLK_s:
-                        case SDLK_DOWN:
-                            // backward
-                            cameraDirection = Camera::CameraMovement::BACKWARD;
-                            break;
-                        case SDLK_k:
-                        case SDLK_w:
-                        case SDLK_UP:
-                            // forward
-                            cameraDirection = Camera::CameraMovement::FORWARD;
-                            break;
-                        case SDLK_l:
-                        case SDLK_d:
-                        case SDLK_RIGHT:
-                            // right-
-                            cameraDirection = Camera::CameraMovement::RIGHT;
-                            break;
-                        case SDLK_q:
-                            if(SDL_GetModState() & KMOD_SHIFT) {
-                                windowShouldClose = true;
-                            }
-                            break;
-                    }
-                    camera.ProcessKeyboard(cameraDirection, deltaTime);
-                    break;
-            }
-        }
+        processUserInput(windowShouldClose, camera, cameraDirection, deltaTime);
         // sets what the background color will clear to when glClear() is called
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -274,40 +270,40 @@ int main() {
         // bind VAO so gl knows to use it
         glBindVertexArray(VAO);
 
-        shaderProgram.use();
-        shaderProgram.setVec3("objectColor", 1.0f, 0.5f, 0.2f);
-        shaderProgram.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+        woodenBoxShaderProgram.use();
+        woodenBoxShaderProgram.setVec3("objectColor", 1.0f, 0.5f, 0.2f); // orange
+        woodenBoxShaderProgram.setVec3("lightColor", 1.0f, 1.0f, 1.0f);  // white
 
 
         // create tansformations - instantiate matrices. Reset for each cube
         // otherwise transform matrices accumulate;
         glm::mat4 model_transform;
-        glm::mat4 view_transform;
-        // draw normal objects (not light box)
+        glm::mat4 view_transform = camera.GetViewMatrix();
+        // Often good pracrice to set outside of the main loop as projection
+        //      matrix rarely changes
+        woodenBoxShaderProgram.setMat4("projection_transform", projection_transform);
+        // // draw normal objects (not light box)
         for(GLuint i = 0; i < 10; i++) {
             model_transform = glm::mat4(1.0f);
-            view_transform = glm::mat4(1.0f);
             model_transform = glm::translate(model_transform, cubePositions[i]);
             model_transform =
                 glm::rotate(model_transform, (float)(SDL_GetTicks64() / 1000.0 + i * 2), glm::vec3(1.0f, 1.0f, 1.0f));
-            view_transform = camera.GetViewMatrix();
-            shaderProgram.setMat4("model_transform", model_transform);
-            shaderProgram.setMat4("view_transform", view_transform);
-            // Often good pracrice to set outside of the main loop as projection
-            // matrix rarely changes
-            shaderProgram.setMat4("projection_transform", projection_transform);
+            woodenBoxShaderProgram.setMat4("model_transform", model_transform);
+            woodenBoxShaderProgram.setMat4("view_transform", view_transform);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
         // draw lightbox
-        glm::vec3 lightBoxPos = glm::vec3(2.0); // cubePositions[1];
+        glm::vec3 lightBoxPos = glm::vec3(5.0, 5.0, -5.0f);
         lightShaderProgram.use();
-        lightShaderProgram.setMat4("model_transform", model_transform);
-        lightShaderProgram.setMat4("view_transform", view_transform);
+
         model_transform = glm::mat4(1.0f);
         model_transform = glm::translate(model_transform, lightBoxPos);
         model_transform = glm::scale(model_transform, glm::vec3(4.0f));
-        shaderProgram.setMat4("model_transform", model_transform);
-        glBindVertexArray(lightVAO);
+
+        lightShaderProgram.setMat4("projection_transform", projection_transform);
+        lightShaderProgram.setMat4("view_transform", view_transform);
+        lightShaderProgram.setMat4("model_transform", model_transform);
+
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         //    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);

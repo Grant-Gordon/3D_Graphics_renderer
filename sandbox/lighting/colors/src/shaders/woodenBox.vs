@@ -1,6 +1,6 @@
 #version 330 core
-in vec3 vInPos;
-in vec2 vInTexCoord;
+layout(location=0) in vec3 vInPos;
+layout(location=1) in vec2 vInTexCoord;
 
 out vec2 vOutTexCoord; 
 
