@@ -116,53 +116,51 @@ int main() {
     Shader woodenBoxShaderProgram{VERTEX_SHADER_PATH.c_str(), FRAGMENT_SHADER_PATH.c_str()};
     Shader lightShaderProgram{LIGHT_VERTEX_SHADER_PATH.c_str(), LIGHT_FRAGMENT_SHADER_PATH.c_str()};
 
-    // vertex pos
     // clang-format off
-    float vertices[] = { //5(x,y,z,u,v) attributes per vertex, 6 vertices per face (2 triangles), 6 faces per cube
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-        0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-
-        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
-
+    // pos(xyz), normal unit vector(xyz), texture(uv). 6 vertices per face, 6 faces 
+    float vertices[] = {
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,   
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,    
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,    
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,   
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,  
+                                                                   
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f,  1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f,  1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f,  0.0f,
+                                                                   
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+                                                                   
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+                                                                   
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+                                                                  
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
     };
-
     glm::vec3 cubePositions[] = {
         glm::vec3(0.0f, 0.0f, 0.0f), 
         glm::vec3(2.0f, 5.0f, -15.0f),
@@ -180,9 +178,6 @@ int main() {
     //========================
     // VBO(data) and VAO (attrib interpretation)
     //========================
-
-
-
     // VBO: RAW vertex data
     // -------------------------
     GLuint VBO;
@@ -199,13 +194,16 @@ int main() {
 
     // Hardcode attribute location since VAO defines attrib location.
     // Position attribs
-    // Defines interpretation of attrib from bound VBO onto bound VAO 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0);
+    // Defines interpretation of attrib from bound VBO onto bound VAO
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (void*)0);
+    // Normal unit vector pos
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (void*)(3* sizeof(float)));
     // texture coord attribute
     // buffer 3 since first 3 attribs are xyz pos
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float)));
     glEnableVertexAttribArray(0); // Enable pos attrib
-    glEnableVertexAttribArray(1); // Enable tex attrib
+    glEnableVertexAttribArray(1); // Enable normal unit vector attrib
+    glEnableVertexAttribArray(2); // Enable tex attrib
 
 
     //========================
@@ -270,9 +268,18 @@ int main() {
         // bind VAO so gl knows to use it
         glBindVertexArray(VAO);
 
+        glm::vec3 lightColor(1.0, 1.0, 1.0); // Can be defined outside of loop, but LoB is nice.
+        glm::vec3 lightBoxPos = glm::vec3(5.0, 5.0, -5.0f);
+        glm::vec3 objectColor(0.2, 0.7, 0.7);
+        float ambientLightLevel = 0.1;
+
         woodenBoxShaderProgram.use();
-        woodenBoxShaderProgram.setVec3("objectColor", 1.0f, 0.5f, 0.2f); // orange
-        woodenBoxShaderProgram.setVec3("lightColor", 0.4f, 0.1f, 1.0f); 
+
+        woodenBoxShaderProgram.setFloat("ambientLightLevel", ambientLightLevel);
+        woodenBoxShaderProgram.setVec3("objectColor", objectColor);
+        woodenBoxShaderProgram.setVec3("lightColor", lightColor);
+        woodenBoxShaderProgram.setVec3("lightBoxPos", lightBoxPos);
+
 
 
         // create tansformations - instantiate matrices. Reset for each cube
@@ -293,7 +300,6 @@ int main() {
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
         // draw lightbox
-        glm::vec3 lightBoxPos = glm::vec3(5.0, 5.0, -5.0f);
         lightShaderProgram.use();
 
         model_transform = glm::mat4(1.0f);
@@ -303,6 +309,7 @@ int main() {
         lightShaderProgram.setMat4("projection_transform", projection_transform);
         lightShaderProgram.setMat4("view_transform", view_transform);
         lightShaderProgram.setMat4("model_transform", model_transform);
+        lightShaderProgram.setVec3("lightColor", lightColor);
 
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
