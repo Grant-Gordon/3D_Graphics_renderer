@@ -271,13 +271,16 @@ int main() {
         glm::vec3 lightBoxPos = glm::vec3(5.0, 5.0, -5.0f);
         glm::vec3 objectColor(0.2, 0.7, 0.7);
         float ambientLightLevel = 0.1;
+        float specularLightLevel = 0.5;
 
         woodenBoxShaderProgram.use();
 
+        woodenBoxShaderProgram.setFloat("specularLightLevel", specularLightLevel);
         woodenBoxShaderProgram.setFloat("ambientLightLevel", ambientLightLevel);
         woodenBoxShaderProgram.setVec3("objectColor", objectColor);
         woodenBoxShaderProgram.setVec3("lightColor", lightColor);
         woodenBoxShaderProgram.setVec3("lightBoxPos", lightBoxPos);
+        woodenBoxShaderProgram.setVec3("viewPos", camera.Position);
 
 
 
