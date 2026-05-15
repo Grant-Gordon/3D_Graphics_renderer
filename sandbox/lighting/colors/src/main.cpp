@@ -195,12 +195,11 @@ int main() {
     // Hardcode attribute location since VAO defines attrib location.
     // Position attribs
     // Defines interpretation of attrib from bound VBO onto bound VAO
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)0);
     // Normal unit vector pos
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (void*)(3* sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3* sizeof(float)));
     // texture coord attribute
-    // buffer 3 since first 3 attribs are xyz pos
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(5 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(0); // Enable pos attrib
     glEnableVertexAttribArray(1); // Enable normal unit vector attrib
     glEnableVertexAttribArray(2); // Enable tex attrib

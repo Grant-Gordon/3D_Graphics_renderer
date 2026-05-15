@@ -14,6 +14,7 @@ uniform float ambientLightLevel;
 //unform sampler2D my other texture or whatever. 
 
 void main(){
+    //if scaling an object, need a normal matrix to put things into world view
     vec3 norm = normalize(vOutNormalPos); //normalizes to unit vector
     vec3 lightDir = normalize(lightBoxPos - vOutFragPos);
     float diffusionFactor = max(dot(norm, lightDir), 0.0); //max so that theta>90 is not negative dot product
