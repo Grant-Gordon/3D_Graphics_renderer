@@ -12,8 +12,14 @@ uniform mat4 view_transform;
 uniform mat4 projection_transform;
 
 void main(){
-    gl_Position = projection_transform * view_transform * model_transform * vec4(vInPos, 1.0f);
-    vOutFragPos = vec3(model_transform * vec4(vInPos, 1.0)); //put fragment in world position
+    vec4 worldPos = model_transform * vec4(vInPos, 1.0f);
+
+    vOutFragPos = vec3(worldPos); //put fragment in world position
+
     vOutTexCoord=vInTexCoord;
-    vOutNormalPos = vInNormalPos;
+
+    vOutNormalPos = mat3(transpose(inverse(model_transform))) * vInNormalPos;
+
+    
+    gl_Position = projection_transform * view_transform * worldPos;
 }
