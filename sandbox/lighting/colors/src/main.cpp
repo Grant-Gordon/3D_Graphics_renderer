@@ -197,7 +197,7 @@ int main() {
     // Defines interpretation of attrib from bound VBO onto bound VAO
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)0);
     // Normal unit vector pos
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3* sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(float)));
     // texture coord attribute
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(0); // Enable pos attrib
@@ -267,21 +267,36 @@ int main() {
         // bind VAO so gl knows to use it
         glBindVertexArray(VAO);
 
-        glm::vec3 lightColor(1.0, 1.0, 1.0); // Can be defined outside of loop, but LoB is nice.
-        glm::vec3 lightBoxPos = glm::vec3(5.0, 5.0, -5.0f);
-        glm::vec3 objectColor(0.2, 0.7, 0.7);
-        float ambientLightLevel = 0.1;
-        float specularLightLevel = 0.5;
 
         woodenBoxShaderProgram.use();
+        // set phong material lighting values (just avoiding magic numbers)
+        glm::vec3 ambientMaterialLevel = glm::vec3(1.0f, 0.5f, 0.41);
+        glm::vec3 diffuseMaterialLevel = glm::vec3(1.0f, 0.5f, 0.31f);
+        glm::vec3 specularMaterialLevel = glm::vec3(0.5, 0.5f, 0.5f);
+        float shininessMaterialLevel = 16.0f;
+        woodenBoxShaderProgram.setVec3("material.ambientLevel", ambientMaterialLevel);
+        woodenBoxShaderProgram.setVec3("material.diffuseLevel", diffuseMaterialLevel);
+        woodenBoxShaderProgram.setVec3("material.specularLevel", specularMaterialLevel);
+        woodenBoxShaderProgram.setFloat("material.shininessLevel", shininessMaterialLevel);
 
-        woodenBoxShaderProgram.setFloat("specularLightLevel", specularLightLevel);
-        woodenBoxShaderProgram.setFloat("ambientLightLevel", ambientLightLevel);
-        woodenBoxShaderProgram.setVec3("objectColor", objectColor);
-        woodenBoxShaderProgram.setVec3("lightColor", lightColor);
-        woodenBoxShaderProgram.setVec3("lightBoxPos", lightBoxPos);
+        glm::vec3 lightColor;
+        lightColor.x = sin((float)(SDL_GetTicks64() / 1000.0) * 2.0f);
+        lightColor.y = sin((float)(SDL_GetTicks64() / 1000.0) * 0.7f);
+        lightColor.z = sin((float)(SDL_GetTicks64() / 1000.0) * 1.3f);
+
+        glm::vec3 diffuseLightLevel = lightColor * glm::vec3(0.5f);
+        glm::vec3 ambientLightLevel = diffuseLightLevel * glm::vec3(0.2f);
+        glm::vec3 specularLightLevel = glm::vec3(1.0f, 1.0f, 1.0f);
+        woodenBoxShaderProgram.setVec3("light.ambientLevel", ambientLightLevel);
+        woodenBoxShaderProgram.setVec3("light.diffuseLevel", diffuseLightLevel);
+        woodenBoxShaderProgram.setVec3("light.specularLevel", specularLightLevel);
+
+        glm::vec3 lightBoxPos = glm::vec3(5.0, 5.0, -5.0f);
+        // glm::vec3 objectColor(0.2, 0.7, 0.7);
+        // woodenBoxShaderProgram.setVec3("material.color", objectColor);
+        woodenBoxShaderProgram.setVec3("light.color", lightColor);
+        woodenBoxShaderProgram.setVec3("light.position", lightBoxPos);
         woodenBoxShaderProgram.setVec3("viewPos", camera.Position);
-
 
 
         // create tansformations - instantiate matrices. Reset for each cube
