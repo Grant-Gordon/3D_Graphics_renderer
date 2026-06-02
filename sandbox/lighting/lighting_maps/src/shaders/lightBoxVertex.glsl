@@ -9,5 +9,4 @@ uniform mat4 projection_transform;
 
 void main(){
     gl_Position = projection_transform * view_transform * model_transform * vec4(vInPos, 1.0f);
- //   vOutTexCoord=vInTexCoord;
 }

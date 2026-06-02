@@ -20,5 +20,6 @@ void main() {
 
     vOutNormalPos = mat3(transpose(inverse(model_transform))) * vInNormalPos;
 
+
     gl_Position = projection_transform * view_transform * worldPos;
 }

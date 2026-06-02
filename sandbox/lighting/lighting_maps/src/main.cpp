@@ -17,15 +17,9 @@
 
 const int SCREEN_WIDTH = 1024;
 const int SCREEN_HEIGHT = 1024;
-std::string PROJECT_DIR = "/home/emergentstupidity/persProj/3D_Graphics_renderer/sandbox/lighting/colors/";
+std::string PROJECT_DIR = "/home/emergentstupidity/persProj/3D_Graphics_renderer/sandbox/lighting/lighting_maps/";
 std::string TEXTURE_DIR = PROJECT_DIR + "Textures/";
-std::string TEXTURE_FILE = "container.jpg";
-std::string TEXTURE_PATH = TEXTURE_DIR + TEXTURE_FILE;
 std::string SHADERS_DIR = PROJECT_DIR + "src/shaders/";
-std::string VERTEX_SHADER_PATH = SHADERS_DIR + "woodenBoxVertex.glsl";
-std::string FRAGMENT_SHADER_PATH = SHADERS_DIR + "woodenBoxFragment.glsl";
-std::string LIGHT_FRAGMENT_SHADER_PATH = SHADERS_DIR + "lightBoxFragment.glsl";
-std::string LIGHT_VERTEX_SHADER_PATH = SHADERS_DIR + "lightBoxVertex.glsl";
 
 void processUserInput(bool& windowShouldClose, Camera& camera, double& deltaTime) {
 
@@ -75,6 +69,47 @@ void processUserInput(bool& windowShouldClose, Camera& camera, double& deltaTime
     }
 }
 
+
+unsigned int loadTexture(char const* path) {
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+
+    GLint width, height, nrComponents;
+    unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
+
+    if(!data) {
+        std::cout << "Failed to load texture at path: " << path << std::endl;
+        stbi_image_free(data);
+        return textureID;
+    }
+    // specify data format
+    GLenum format;
+    if(nrComponents == 1) {
+        format = GL_RED;
+    } else if(nrComponents == 3) {
+        format = GL_RGB;
+    } else if(nrComponents == 4) {
+        format = GL_RGBA;
+    } else {
+        std::cout << "value of nrComponents (" << nrComponents << ") is not supported for textures" << std::endl;
+        stbi_image_free(data);
+        return textureID;
+    }
+
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    // set the texture wrapping/filtering options (on the currently bound texture
+    // object)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    stbi_image_free(data);
+    return textureID;
+}
+
 int main() {
     //===========================================
     // SDL init
@@ -110,9 +145,14 @@ int main() {
     glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     glEnable(GL_DEPTH_TEST);
 
-    // Vertex shader out, and fragment shader in must have same name
-    Shader woodenBoxShaderProgram{VERTEX_SHADER_PATH.c_str(), FRAGMENT_SHADER_PATH.c_str()};
-    Shader lightShaderProgram{LIGHT_VERTEX_SHADER_PATH.c_str(), LIGHT_FRAGMENT_SHADER_PATH.c_str()};
+    Shader lightShaderProgram{(SHADERS_DIR + "lightBoxVertex.glsl").c_str(),
+        (SHADERS_DIR + "lightBoxFragment.glsl").c_str()};
+    Shader woodenBoxShaderProgram{(SHADERS_DIR + "woodenBoxVertex.glsl").c_str(),
+        (SHADERS_DIR + "woodenBoxFragment.glsl").c_str()};
+    Shader steelRimmedCrateShaderProgram{(SHADERS_DIR + "steelRimmedCrateVertex.glsl").c_str(),
+        (SHADERS_DIR + "steelRimmedCrateFragment.glsl").c_str()};
+    Shader untexturedCubeShaderProgram{(SHADERS_DIR + "woodenBoxVertex.glsl").c_str(),
+        (SHADERS_DIR + "untexturedCubeFragment.glsl").c_str()};
 
     // clang-format off
     // pos(xyz), normal unit vector(xyz), texture(uv). 6 vertices per face, 6 faces 
@@ -122,36 +162,36 @@ int main() {
          0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,    
          0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,    
         -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,   
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,  
-                                                                   
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+        
         -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f,  0.0f,
          0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f,  0.0f,
          0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f,  1.0f,
          0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f,  1.0f,
         -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f,  1.0f,
         -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f,  0.0f,
-                                                                   
+
         -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
         -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
         -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
         -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
         -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
         -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-                                                                   
+        
          0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
          0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
          0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
          0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
          0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
          0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-                                                                   
+
         -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
          0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  1.0f,
          0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
          0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
         -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f,
         -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
-                                                                  
+
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
          0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  1.0f,
          0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
@@ -203,34 +243,9 @@ int main() {
     glEnableVertexAttribArray(2); // Enable tex attrib
 
 
-    //========================
-    // load and generate texture
-    //========================
-
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    // set the texture wrapping/filtering options (on the currently bound texture
-    // object)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // load and generate the texture
-    int width, height, nrChannels;
-    unsigned char* data = stbi_load(TEXTURE_PATH.c_str(), &width, &height, &nrChannels, 0);
-
-    if(data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    } else {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
-
-    woodenBoxShaderProgram.use();
-    woodenBoxShaderProgram.setInt("samplerTexture", 0);
+    GLuint woodenBoxDiffuseMap = loadTexture((TEXTURE_DIR + "woodenBoxDiffuseMap.jpg").c_str());
+    GLuint steelRimmedCrateDiffuseMap = loadTexture((TEXTURE_DIR + "steelRimmedCrateDiffuseMap.png").c_str());
+    GLuint steelRimmedCrateSpecularMap = loadTexture((TEXTURE_DIR + "steelRimmedCrateSpecularMap.png").c_str());
 
     // defined outside of loop as projection rarely changes
     glm::mat4 projection_transform = glm::mat4(1.0f);
@@ -250,36 +265,54 @@ int main() {
     int endFrameTicks = SDL_GetTicks();
     while(!windowShouldClose) {
         int startFrameTicks = SDL_GetTicks();
+
         // user input
         processUserInput(windowShouldClose, camera, deltaTime);
+
         // sets what the background color will clear to when glClear() is called
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // bind texture
-        glBindTexture(GL_TEXTURE_2D, texture);
-        // if using multiple textures, glActivateTexture(GLTEXTURE<1-16>) the bind,
-        // for each texture
+        // Bind Texture Object to Texture Unit Array slots
+        glActiveTexture(GL_TEXTURE0); // where is is between 0 and GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS. Selects the slot
+                                      // of textures looking at (in texture unit array)
+        glBindTexture(GL_TEXTURE_2D,
+            woodenBoxDiffuseMap); // assigns the texture to active slot (in texture unit array). GL_TEXTURE_2D =
+                                  // location or target in GL context, changes how GL uses bound data
+
+        glActiveTexture(GL_TEXTURE0 + 1);
+        glBindTexture(GL_TEXTURE_2D, steelRimmedCrateDiffuseMap);
+
+        glActiveTexture(GL_TEXTURE0 + 2);
+        glBindTexture(GL_TEXTURE_2D, steelRimmedCrateSpecularMap);
+
 
         // bind VAO so gl knows to use it
         glBindVertexArray(VAO);
 
 
+        // lightbox properties
+        glm::vec3 lightBoxPos = glm::vec3(5.0, 5.0, -5.0f);
+        // glm::vec3 lightColor;
+        // lightColor.x = sin((float)(SDL_GetTicks64() / 1000.0) * 2.0f);
+        // lightColor.y = sin((float)(SDL_GetTicks64() / 1000.0) * 0.7f);
+        // lightColor.z = sin((float)(SDL_GetTicks64() / 1000.0) * 1.3f);
+
+        glm::vec3 lightColor = glm::vec3(1.0, 1.0, 1.0);
+
+        // woodenBox
         woodenBoxShaderProgram.use();
         // set phong material lighting values (just avoiding magic numbers)
         glm::vec3 ambientMaterialLevel = glm::vec3(1.0f, 0.5f, 0.41);
-        glm::vec3 diffuseMaterialLevel = glm::vec3(1.0f, 0.5f, 0.31f);
         glm::vec3 specularMaterialLevel = glm::vec3(0.5, 0.5f, 0.5f);
         float shininessMaterialLevel = 16.0f;
         woodenBoxShaderProgram.setVec3("material.ambientLevel", ambientMaterialLevel);
-        woodenBoxShaderProgram.setVec3("material.diffuseLevel", diffuseMaterialLevel);
         woodenBoxShaderProgram.setVec3("material.specularLevel", specularMaterialLevel);
+        woodenBoxShaderProgram.setInt("material.diffuseMap", 0);
         woodenBoxShaderProgram.setFloat("material.shininessLevel", shininessMaterialLevel);
-
-        glm::vec3 lightColor;
-        lightColor.x = sin((float)(SDL_GetTicks64() / 1000.0) * 2.0f);
-        lightColor.y = sin((float)(SDL_GetTicks64() / 1000.0) * 0.7f);
-        lightColor.z = sin((float)(SDL_GetTicks64() / 1000.0) * 1.3f);
+        woodenBoxShaderProgram.setVec3("light.color", lightColor);
+        woodenBoxShaderProgram.setVec3("light.position", lightBoxPos);
+        woodenBoxShaderProgram.setVec3("viewPos", camera.Position);
 
         glm::vec3 diffuseLightLevel = lightColor * glm::vec3(0.5f);
         glm::vec3 ambientLightLevel = diffuseLightLevel * glm::vec3(0.2f);
@@ -288,29 +321,61 @@ int main() {
         woodenBoxShaderProgram.setVec3("light.diffuseLevel", diffuseLightLevel);
         woodenBoxShaderProgram.setVec3("light.specularLevel", specularLightLevel);
 
-        glm::vec3 lightBoxPos = glm::vec3(5.0, 5.0, -5.0f);
-        // glm::vec3 objectColor(0.2, 0.7, 0.7);
-        // woodenBoxShaderProgram.setVec3("material.color", objectColor);
-        woodenBoxShaderProgram.setVec3("light.color", lightColor);
-        woodenBoxShaderProgram.setVec3("light.position", lightBoxPos);
-        woodenBoxShaderProgram.setVec3("viewPos", camera.Position);
+        // steelRimmedCrate
+        steelRimmedCrateShaderProgram.use();
+        steelRimmedCrateShaderProgram.setVec3("material.ambientLevel", ambientMaterialLevel);
+        steelRimmedCrateShaderProgram.setFloat("material.shininessLevel", shininessMaterialLevel);
+        steelRimmedCrateShaderProgram.setInt("material.diffuseMap", 1);
+        steelRimmedCrateShaderProgram.setInt("material.specularMap", 2);
+        steelRimmedCrateShaderProgram.setVec3("light.ambientLevel", ambientLightLevel);
+        steelRimmedCrateShaderProgram.setVec3("light.diffuseLevel", diffuseLightLevel);
+        steelRimmedCrateShaderProgram.setVec3("light.specularLevel", specularLightLevel);
+        steelRimmedCrateShaderProgram.setVec3("light.color", lightColor);
+        steelRimmedCrateShaderProgram.setVec3("light.position", lightBoxPos);
+        steelRimmedCrateShaderProgram.setVec3("viewPos", camera.Position);
 
+        // untextured box
+        untexturedCubeShaderProgram.use();
+        glm::vec3 untexturedMaterialColor = glm::vec3(0.4f, 0.7f, 0.2);
+        glm::vec3 diffuseMaterialLevel = glm::vec3(1.0f, 0.5f, 0.31f);
+        untexturedCubeShaderProgram.setVec3("material.ambientLevel", ambientMaterialLevel);
+        untexturedCubeShaderProgram.setVec3("material.diffuseLevel", diffuseMaterialLevel);
+        untexturedCubeShaderProgram.setVec3("material.specularLevel", specularMaterialLevel);
+        untexturedCubeShaderProgram.setVec3("material.color", untexturedMaterialColor);
+        untexturedCubeShaderProgram.setFloat("material.shininessLevel", shininessMaterialLevel);
+        untexturedCubeShaderProgram.setVec3("light.color", lightColor);
+        untexturedCubeShaderProgram.setVec3("light.position", lightBoxPos);
+        untexturedCubeShaderProgram.setVec3("viewPos", camera.Position);
+        untexturedCubeShaderProgram.setVec3("light.ambientLevel", ambientLightLevel);
+        untexturedCubeShaderProgram.setVec3("light.diffuseLevel", diffuseLightLevel);
+        untexturedCubeShaderProgram.setVec3("light.specularLevel", specularLightLevel);
 
         // create tansformations - instantiate matrices. Reset for each cube
         // otherwise transform matrices accumulate;
         glm::mat4 model_transform;
         glm::mat4 view_transform = camera.GetViewMatrix();
-        // Often good pracrice to set outside of the main loop as projection
-        //      matrix rarely changes
-        woodenBoxShaderProgram.setMat4("projection_transform", projection_transform);
         // // draw normal objects (not light box)
         for(GLuint i = 0; i < 10; i++) {
             model_transform = glm::mat4(1.0f);
             model_transform = glm::translate(model_transform, cubePositions[i]);
             model_transform =
                 glm::rotate(model_transform, (float)(SDL_GetTicks64() / 1000.0 + i * 2), glm::vec3(1.0f, 1.0f, 1.0f));
-            woodenBoxShaderProgram.setMat4("model_transform", model_transform);
-            woodenBoxShaderProgram.setMat4("view_transform", view_transform);
+            if(i % 3 == 0) {
+                steelRimmedCrateShaderProgram.use();
+                steelRimmedCrateShaderProgram.setMat4("model_transform", model_transform);
+                steelRimmedCrateShaderProgram.setMat4("view_transform", view_transform);
+                steelRimmedCrateShaderProgram.setMat4("projection_transform", projection_transform);
+            } else if(i % 2 == 0) {
+                woodenBoxShaderProgram.use();
+                woodenBoxShaderProgram.setMat4("model_transform", model_transform);
+                woodenBoxShaderProgram.setMat4("view_transform", view_transform);
+                woodenBoxShaderProgram.setMat4("projection_transform", projection_transform);
+            } else {
+                untexturedCubeShaderProgram.use();
+                untexturedCubeShaderProgram.setMat4("model_transform", model_transform);
+                untexturedCubeShaderProgram.setMat4("view_transform", view_transform);
+                untexturedCubeShaderProgram.setMat4("projection_transform", projection_transform);
+            }
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
         // draw lightbox
