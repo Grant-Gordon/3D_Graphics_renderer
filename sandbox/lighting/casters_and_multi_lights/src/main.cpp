@@ -301,7 +301,7 @@ int main() {
         // lightColor.y = sin((float)(SDL_GetTicks64() / 1000.0) * 0.7f);
         // lightColor.z = sin((float)(SDL_GetTicks64() / 1000.0) * 1.3f);
 
-        glm::vec3 lightColor = glm::vec3(0.0, 1.0, 1.0);
+        glm::vec3 lightColor = glm::vec3(0.1, 0.2, 0.2);
 
         // woodenBox
         woodenBoxShaderProgram.use();
@@ -342,8 +342,8 @@ int main() {
         steelRimmedCrateShaderProgram.setFloat("pointLight.quadratic", 0.032f);
 
         //flashlight
-        glm::vec3 flashlightColor = glm::vec3(1.0f, 0.0f, 0.0f);
-        glm::vec3 flashlightDiffuseLightLevel = flashlightColor * glm::vec3(0.5f);
+        glm::vec3 flashlightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+        glm::vec3 flashlightDiffuseLightLevel = lightColor * glm::vec3(0.5f);
         glm::vec3 flashlightAmbientLightLevel = flashlightDiffuseLightLevel * glm::vec3(0.2f);
         glm::vec3 flashlightSpecularLightLevel = glm::vec3(1.0f, 1.0f, 1.0f);
         steelRimmedCrateShaderProgram.setVec3("flashlight.ambientLevel", flashlightAmbientLightLevel);
