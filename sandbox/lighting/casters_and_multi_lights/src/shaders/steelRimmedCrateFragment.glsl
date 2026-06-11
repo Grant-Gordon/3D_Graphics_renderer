@@ -55,7 +55,8 @@ struct Flashlight {
 
     // flashlight
     vec3 direction;
-    float cutoff;
+    float outerCutOff;
+    float innerCutOff;
 };
 uniform Flashlight flashlight;
 
@@ -95,7 +96,7 @@ void main() {
     vec3 flashlightAmbientLight =vec3(0.0);
     vec3 flashlightDiffusionLight =vec3(0.0);
     vec3 flashlightSpecularLight = vec3(0.0);
-    if(theta > flashlight.cutoff){
+    if(theta > flashlight.outerCutoff){
         //do lighting calculations
         // ambient
          flashlightAmbientLight = flashlight.ambientLevel * flashlight.color * vec3(texture(material.diffuseMap, vOutTexCoord));
@@ -121,6 +122,13 @@ void main() {
         flashlightDiffusionLight *= attenuationFactor;
         flashlightSpecularLight *= attenuationFactor;
 
+        //flashlight edge smoothing
+        float flashlightTheta = dot(lightDir, normalize(-flashlight.direction));
+        float flashlightEpsilon = flashlight.innerCutOff - light.outerCutOff;
+        float flashlightIntensity = clamp(flashlightTheta - flashlight.outerCutOff) / flashlightEpsilon, 0.0f, 1.0);
+
+        flashlightDiffusionLight *= flashlightIntensity;
+        flashlightSpecularLight *= flashlightIntensity;
     }
 
     vec3 boxColor = (ambientLight + diffusionLight + specularLight + flashlightAmbientLight + flashlightDiffusionLight + flashlightSpecularLight); // * material.color;

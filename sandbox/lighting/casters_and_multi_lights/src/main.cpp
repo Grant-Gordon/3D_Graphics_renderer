@@ -18,9 +18,22 @@
 const int SCREEN_WIDTH = 1024;
 const int SCREEN_HEIGHT = 1024;
 std::string PROJECT_DIR =
-    "/home/emergentstupidity/persProj/3D_Graphics_renderer/sandbox/lighting/casters_and_multi_lights/";
+    "/home/emergentstupidity/projects/3D_Graphics_renderer/sandbox/lighting/casters_and_multi_lights/";
 std::string TEXTURE_DIR = PROJECT_DIR + "Textures/";
 std::string SHADERS_DIR = PROJECT_DIR + "src/shaders/";
+
+struct PhongMaterial{
+    int diffuseMap; //int represents the texture unit array index
+    int specularMap; //int represents the texture unit array index
+    float shininess;
+};
+
+void setShaderMaterial(const Shader& shaderProgram, const PhongMaterial& material){
+    shaderProgram.setInt("material.diffuseMap", material.diffuseMap);
+    shaderProgram.setInt("material.specularMap", material.specularMap);
+    shaderProgram.setFloat("material.shininess", material.shininess);
+}
+
 
 void processUserInput(bool& windowShouldClose, Camera& camera, double& deltaTime) {
 
@@ -146,18 +159,14 @@ int main() {
     glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     glEnable(GL_DEPTH_TEST);
 
-    Shader lightShaderProgram{(SHADERS_DIR + "lightBoxVertex.glsl").c_str(),
+    Shader lightCubeShaderProgram{(SHADERS_DIR + "lightBoxVertex.glsl").c_str(),
         (SHADERS_DIR + "lightBoxFragment.glsl").c_str()};
-    Shader woodenBoxShaderProgram{(SHADERS_DIR + "woodenBoxVertex.glsl").c_str(),
-        (SHADERS_DIR + "woodenBoxFragment.glsl").c_str()};
-    Shader steelRimmedCrateShaderProgram{(SHADERS_DIR + "steelRimmedCrateVertex.glsl").c_str(),
-        (SHADERS_DIR + "steelRimmedCrateFragment.glsl").c_str()};
-    Shader untexturedCubeShaderProgram{(SHADERS_DIR + "woodenBoxVertex.glsl").c_str(),
-        (SHADERS_DIR + "untexturedCubeFragment.glsl").c_str()};
-
+    Shader multiLightShaderProgram{(SHADERS_DIR + "multiLightVertex.glsl").c_str(),
+        (SHADERS_DIR + "multiLightFragment.glsl").c_str()};
     // clang-format off
     // pos(xyz), normal unit vector(xyz), texture(uv). 6 vertices per face, 6 faces 
     float vertices[] = {
+        // positions          // normals           // texture coords
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
          0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,   
          0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,    
@@ -211,6 +220,19 @@ int main() {
         glm::vec3(1.5f, 2.0f, -2.5f),
         glm::vec3(1.5f, 0.2f, -1.5f),
         glm::vec3(-1.3f, 1.0f, -1.5f)
+    };
+
+    glm::vec3 pointLightPositions[] = {
+        glm::vec3( 0.7f, 0.2f, 2.0f),
+        glm::vec3(2.3f, -3.3f, -4.0f),
+        glm::vec3( -4.0f, 2.0f, -12.0f),
+        glm::vec3( 0.0f, 0.0f, -3.0f),
+    };
+    glm::vec3 pointLightColors[] = {
+        glm::vec3(1.0),
+        glm::vec3(1.0),
+        glm::vec3(1.0),
+        glm::vec3(1.0),
     };
     // clang-format on
 
@@ -287,95 +309,97 @@ int main() {
         glActiveTexture(GL_TEXTURE0 + 2);
         glBindTexture(GL_TEXTURE_2D, steelRimmedCrateSpecularMap);
 
+        PhongMaterial steelRimmedCrateMaterial = {
+            .diffuseMap = 1,
+            .specularMap = 2,
+            .shininess = 32.0,
+        };
+        setShaderMaterial(multiLightShaderProgram, steelRimmedCrateMaterial);
+
+        //shader values
+        glm::vec3 ambientLight = glm::vec3(0.05f, 0.05f, 0.05f);
+        //direciontal Light Values
+        glm::vec3 directionalLightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+        glm::vec3 directionalLightDir = glm::vec3(-0.2f, -1.0f, -0.3f);
+        glm::vec3 directionalLightDiffuse = glm::vec3(0.4f, 0.4f, 0.4f);
+        glm::vec3 directionalLightSpecular =  glm::vec3(0.5f, 0.5f, 0.5f);
+        //point Light Values 
+        glm::vec3 pointLightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+        glm::vec3 pointLightDiffuse = glm::vec3(0.8f, 0.8f, 0.8f);
+        glm::vec3 pointLightSpecular= glm::vec3(1.0f, 1.0f, 1.0f);
+        float pointLightConstant = 1.0f;
+        float pointLightLinear = 0.09f;
+        float pointLightQuadratic = 0.032f;
+        //spot Light Values
+        glm::vec3 spotLightColor = glm::vec3(0.0f, 1.0f, 1.0f);
+        glm::vec3 spotLightAmbient = glm::vec3(0.0f);
+        glm::vec3 spotLightDiffuse = glm::vec3(1.0f);
+        glm::vec3 spotLightSpecular= glm::vec3(1.0f);
+        float spotLightConstant = 1.0f;
+        float spotLightLinear = 0.09f;
+        float spotLightQuadratic = 0.032f;
+        float spotLightInnerCutOff = glm::cos(glm::radians(12.5f));
+        float spotLightOuterCutOff = glm::cos(glm::radians(17.5f));
+
+        multiLightShaderProgram.setVec3("viewPos", camera.Position);
+        //directional Light
+        multiLightShaderProgram.setVec3("dirLight.color", directionalLightColor);
+        multiLightShaderProgram.setVec3("dirLight.direction", directionalLightDir);
+        multiLightShaderProgram.setVec3("dirLight.ambient", ambientLight);
+        multiLightShaderProgram.setVec3("dirLight.diffuse", directionalLightDiffuse);
+        multiLightShaderProgram.setVec3("dirLight.specular", directionalLightSpecular);
+        //point Light 0
+        multiLightShaderProgram.setVec3("pointLights[0].position", pointLightPositions[0]);
+        multiLightShaderProgram.setVec3("pointLights[0].color", pointLightColor);
+        multiLightShaderProgram.setVec3("pointLights[0].ambient", ambientLight);
+        multiLightShaderProgram.setVec3("pointLights[0].diffuse", pointLightDiffuse);
+        multiLightShaderProgram.setVec3("pointLights[0].specular", pointLightSpecular);
+        multiLightShaderProgram.setFloat("pointLights[0].constant", pointLightConstant);
+        multiLightShaderProgram.setFloat("pointLights[0].linear", pointLightLinear);
+        multiLightShaderProgram.setFloat("pointLights[0].quadratic", pointLightQuadratic);
+        //point Light 1
+        multiLightShaderProgram.setVec3("pointLights[1].position", pointLightPositions[1]);
+        multiLightShaderProgram.setVec3("pointLights[1].color", pointLightColor);
+        multiLightShaderProgram.setVec3("pointLights[1].ambient", ambientLight);
+        multiLightShaderProgram.setVec3("pointLights[1].diffuse", pointLightDiffuse);
+        multiLightShaderProgram.setVec3("pointLights[1].specular", pointLightSpecular);
+        multiLightShaderProgram.setFloat("pointLights[1].constant", pointLightConstant);
+        multiLightShaderProgram.setFloat("pointLights[1].linear", pointLightLinear);
+        multiLightShaderProgram.setFloat("pointLights[1].quadratic", pointLightQuadratic);
+        //point Light 2 
+        multiLightShaderProgram.setVec3("pointLights[2].position", pointLightPositions[2]);
+        multiLightShaderProgram.setVec3("pointLights[2].color", pointLightColor);
+        multiLightShaderProgram.setVec3("pointLights[2].ambient", ambientLight);
+        multiLightShaderProgram.setVec3("pointLights[2].diffuse", pointLightDiffuse);
+        multiLightShaderProgram.setVec3("pointLights[2].specular", pointLightSpecular);
+        multiLightShaderProgram.setFloat("pointLights[2].constant", pointLightConstant);
+        multiLightShaderProgram.setFloat("pointLights[2].linear", pointLightLinear);
+        multiLightShaderProgram.setFloat("pointLights[2].quadratic", pointLightQuadratic);
+        //point Light 3
+        multiLightShaderProgram.setVec3("pointLights[3].position", pointLightPositions[3]);
+        multiLightShaderProgram.setVec3("pointLights[3].color", pointLightColor);
+        multiLightShaderProgram.setVec3("pointLights[3].ambient", ambientLight);
+        multiLightShaderProgram.setVec3("pointLights[3].diffuse", pointLightDiffuse);
+        multiLightShaderProgram.setVec3("pointLights[3].specular", pointLightSpecular);
+        multiLightShaderProgram.setFloat("pointLights[3].constant", pointLightConstant);
+        multiLightShaderProgram.setFloat("pointLights[3].linear", pointLightLinear);
+        multiLightShaderProgram.setFloat("pointLights[3].quadratic", pointLightQuadratic);
+        //spotlight (flashlight)
+        multiLightShaderProgram.setVec3("spotLights[0].position", camera.Position);
+        multiLightShaderProgram.setVec3("spotLights[0].color", spotLightColor);
+        multiLightShaderProgram.setVec3("spotLights[0].direction", camera.Front);
+        multiLightShaderProgram.setVec3("spotLights[0].ambient", spotLightAmbient);
+        multiLightShaderProgram.setVec3("spotLights[0].diffuse", spotLightDiffuse);
+        multiLightShaderProgram.setVec3("spotLights[0].specular", spotLightSpecular);
+        multiLightShaderProgram.setFloat("spotLights[0].constant", spotLightConstant);
+        multiLightShaderProgram.setFloat("spotLights[0].linear", spotLightLinear);
+        multiLightShaderProgram.setFloat("spotLights[0].quadratic", spotLightQuadratic);
+        multiLightShaderProgram.setFloat("spotLights[0].innerCutOff", spotLightInnerCutOff);
+        multiLightShaderProgram.setFloat("spotLights[0].outerCutOff", spotLightOuterCutOff);
+
 
         // bind VAO so gl knows to use it
         glBindVertexArray(VAO);
-
-
-        // lightbox properties
-        // if positional Light vec4.w will == 1.0, if its a direcitonal light, vec4.w will ==0.0
-        glm::vec3 lightBoxPos = glm::vec3(5.0, 5.0, -5.0f);
-        glm::vec3 sunDirection = glm::vec3(-0.2f, -1.0f, -0.3f);
-        // glm::vec3 lightColor;
-        // lightColor.x = sin((float)(SDL_GetTicks64() / 1000.0) * 2.0f);
-        // lightColor.y = sin((float)(SDL_GetTicks64() / 1000.0) * 0.7f);
-        // lightColor.z = sin((float)(SDL_GetTicks64() / 1000.0) * 1.3f);
-
-        glm::vec3 lightColor = glm::vec3(0.1, 0.2, 0.2);
-
-        // woodenBox
-        woodenBoxShaderProgram.use();
-        // set phong material lighting values (just avoiding magic numbers)
-        glm::vec3 ambientMaterialLevel = glm::vec3(1.0f, 0.5f, 0.41);
-        glm::vec3 specularMaterialLevel = glm::vec3(0.5, 0.5f, 0.5f);
-        float shininessMaterialLevel = 16.0f;
-        woodenBoxShaderProgram.setVec3("material.ambientLevel", ambientMaterialLevel);
-        woodenBoxShaderProgram.setVec3("material.specularLevel", specularMaterialLevel);
-        woodenBoxShaderProgram.setInt("material.diffuseMap", 0);
-        woodenBoxShaderProgram.setFloat("material.shininessLevel", shininessMaterialLevel);
-        woodenBoxShaderProgram.setVec3("light.color", lightColor);
-        woodenBoxShaderProgram.setVec3("light.direction", sunDirection);
-        woodenBoxShaderProgram.setVec3("viewPos", camera.Position);
-
-        glm::vec3 diffuseLightLevel = lightColor * glm::vec3(0.5f);
-        glm::vec3 ambientLightLevel = diffuseLightLevel * glm::vec3(0.2f);
-        glm::vec3 specularLightLevel = glm::vec3(1.0f, 1.0f, 1.0f);
-        woodenBoxShaderProgram.setVec3("light.ambientLevel", ambientLightLevel);
-        woodenBoxShaderProgram.setVec3("light.diffuseLevel", diffuseLightLevel);
-        woodenBoxShaderProgram.setVec3("light.specularLevel", specularLightLevel);
-
-
-        // steelRimmedCrate
-        steelRimmedCrateShaderProgram.use();
-        steelRimmedCrateShaderProgram.setVec3("material.ambientLevel", ambientMaterialLevel);
-        steelRimmedCrateShaderProgram.setFloat("material.shininessLevel", shininessMaterialLevel);
-        steelRimmedCrateShaderProgram.setInt("material.diffuseMap", 1);
-        steelRimmedCrateShaderProgram.setInt("material.specularMap", 2);
-        //point light attribs
-        steelRimmedCrateShaderProgram.setVec3("pointLight.ambientLevel", ambientLightLevel);
-        steelRimmedCrateShaderProgram.setVec3("pointLight.diffuseLevel", diffuseLightLevel);
-        steelRimmedCrateShaderProgram.setVec3("pointLight.specularLevel", specularLightLevel);
-        steelRimmedCrateShaderProgram.setVec3("pointLight.color", lightColor);
-            //attenuation
-        steelRimmedCrateShaderProgram.setFloat("pointLight.constant", 1.0f);
-        steelRimmedCrateShaderProgram.setFloat("pointLight.linear", 0.09f);
-        steelRimmedCrateShaderProgram.setFloat("pointLight.quadratic", 0.032f);
-
-        //flashlight
-        glm::vec3 flashlightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-        glm::vec3 flashlightDiffuseLightLevel = lightColor * glm::vec3(0.5f);
-        glm::vec3 flashlightAmbientLightLevel = flashlightDiffuseLightLevel * glm::vec3(0.2f);
-        glm::vec3 flashlightSpecularLightLevel = glm::vec3(1.0f, 1.0f, 1.0f);
-        steelRimmedCrateShaderProgram.setVec3("flashlight.ambientLevel", flashlightAmbientLightLevel);
-        steelRimmedCrateShaderProgram.setVec3("flashlight.diffuseLevel", flashlightDiffuseLightLevel);
-        steelRimmedCrateShaderProgram.setVec3("flashlight.specularLevel", flashlightSpecularLightLevel);
-        steelRimmedCrateShaderProgram.setVec3("flashlight.color", flashlightColor); //RED flashlight
-        steelRimmedCrateShaderProgram.setVec3("flashlight.position", camera.Position);
-        steelRimmedCrateShaderProgram.setVec3("flashlight.direction", camera.Front);
-        steelRimmedCrateShaderProgram.setFloat("flashlight.cutOff", glm::cos(glm::radians(12.5f)));
-            //flashlight attenuation
-        steelRimmedCrateShaderProgram.setFloat("flashlight.constant", 1.0f);
-        steelRimmedCrateShaderProgram.setFloat("flashlight.linear", 0.09f);
-        steelRimmedCrateShaderProgram.setFloat("flashlight.quadratic", 0.032f);
-        // steelRimmedCrateShaderProgram.setVec3("light.direction", sunDirection);
-        steelRimmedCrateShaderProgram.setVec3("viewPos", camera.Position);
-
-
-        // untextured box
-        untexturedCubeShaderProgram.use();
-        glm::vec3 untexturedMaterialColor = glm::vec3(0.4f, 0.7f, 0.2);
-        glm::vec3 diffuseMaterialLevel = glm::vec3(1.0f, 0.5f, 0.31f);
-        untexturedCubeShaderProgram.setVec3("material.ambientLevel", ambientMaterialLevel);
-        untexturedCubeShaderProgram.setVec3("material.diffuseLevel", diffuseMaterialLevel);
-        untexturedCubeShaderProgram.setVec3("material.specularLevel", specularMaterialLevel);
-        untexturedCubeShaderProgram.setVec3("material.color", untexturedMaterialColor);
-        untexturedCubeShaderProgram.setFloat("material.shininessLevel", shininessMaterialLevel);
-        untexturedCubeShaderProgram.setVec3("light.color", lightColor);
-        untexturedCubeShaderProgram.setVec3("light.direction", sunDirection);
-        untexturedCubeShaderProgram.setVec3("viewPos", camera.Position);
-        untexturedCubeShaderProgram.setVec3("light.ambientLevel", ambientLightLevel);
-        untexturedCubeShaderProgram.setVec3("light.diffuseLevel", diffuseLightLevel);
-        untexturedCubeShaderProgram.setVec3("light.specularLevel", specularLightLevel);
 
         // create tansformations - instantiate matrices. Reset for each cube
         // otherwise transform matrices accumulate;
@@ -387,37 +411,25 @@ int main() {
             model_transform = glm::translate(model_transform, cubePositions[i]);
             model_transform =
                 glm::rotate(model_transform, (float)(SDL_GetTicks64() / 1000.0 + i * 2), glm::vec3(1.0f, 1.0f, 1.0f));
-            if(i % 3 == 0) {
-                steelRimmedCrateShaderProgram.use();
-                steelRimmedCrateShaderProgram.setMat4("model_transform", model_transform);
-                steelRimmedCrateShaderProgram.setMat4("view_transform", view_transform);
-                steelRimmedCrateShaderProgram.setMat4("projection_transform", projection_transform);
-            } else if(i % 2 == 0) {
-                woodenBoxShaderProgram.use();
-                woodenBoxShaderProgram.setMat4("model_transform", model_transform);
-                woodenBoxShaderProgram.setMat4("view_transform", view_transform);
-                woodenBoxShaderProgram.setMat4("projection_transform", projection_transform);
-            } else {
-                untexturedCubeShaderProgram.use();
-                untexturedCubeShaderProgram.setMat4("model_transform", model_transform);
-                untexturedCubeShaderProgram.setMat4("view_transform", view_transform);
-                untexturedCubeShaderProgram.setMat4("projection_transform", projection_transform);
-            }
+            multiLightShaderProgram.use();
+            multiLightShaderProgram.setMat4("model_transform", model_transform);
+            multiLightShaderProgram.setMat4("view_transform", view_transform);
+            multiLightShaderProgram.setMat4("projection_transform", projection_transform);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
         // draw lightbox
-        lightShaderProgram.use();
-
-        model_transform = glm::mat4(1.0f);
-        model_transform = glm::translate(model_transform, lightBoxPos);
-        model_transform = glm::scale(model_transform, glm::vec3(4.0f));
-
-        lightShaderProgram.setMat4("projection_transform", projection_transform);
-        lightShaderProgram.setMat4("view_transform", view_transform);
-        lightShaderProgram.setMat4("model_transform", model_transform);
-        lightShaderProgram.setVec3("lightColor", lightColor);
-
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        lightCubeShaderProgram.use();
+        lightCubeShaderProgram.setMat4("projection_transform", projection_transform);
+        lightCubeShaderProgram.setMat4("view_transform", view_transform);
+        //for each point light
+        for(GLuint i =0; i < 4; i++){
+            model_transform = glm::mat4(1.0f);
+            model_transform = glm::translate(model_transform, pointLightPositions[i]);
+            model_transform = glm::scale(model_transform, glm::vec3(0.2f));
+            lightCubeShaderProgram.setMat4("model_transform", model_transform);
+            lightCubeShaderProgram.setVec3("lightColor", pointLightColors[i]);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         //    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
         SDL_GL_SwapWindow(SDL_window);
