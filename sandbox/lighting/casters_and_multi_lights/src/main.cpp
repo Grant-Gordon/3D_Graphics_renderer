@@ -229,10 +229,10 @@ int main() {
         glm::vec3( 0.0f, 0.0f, -3.0f),
     };
     glm::vec3 pointLightColors[] = {
-        glm::vec3(1.0),
-        glm::vec3(1.0),
-        glm::vec3(1.0),
-        glm::vec3(1.0),
+        glm::vec3(1.0f),
+        glm::vec3(1.0f, 0.0f, 0.0f),
+        glm::vec3(0.0f, 1.0f, 0.0f),
+        glm::vec3(0.0f, 0.0f, 1.0f),
     };
     // clang-format on
 
@@ -309,6 +309,7 @@ int main() {
         glActiveTexture(GL_TEXTURE0 + 2);
         glBindTexture(GL_TEXTURE_2D, steelRimmedCrateSpecularMap);
 
+        multiLightShaderProgram.use();
         PhongMaterial steelRimmedCrateMaterial = {
             .diffuseMap = 1,
             .specularMap = 2,
@@ -324,7 +325,6 @@ int main() {
         glm::vec3 directionalLightDiffuse = glm::vec3(0.4f, 0.4f, 0.4f);
         glm::vec3 directionalLightSpecular =  glm::vec3(0.5f, 0.5f, 0.5f);
         //point Light Values 
-        glm::vec3 pointLightColor = glm::vec3(1.0f, 1.0f, 1.0f);
         glm::vec3 pointLightDiffuse = glm::vec3(0.8f, 0.8f, 0.8f);
         glm::vec3 pointLightSpecular= glm::vec3(1.0f, 1.0f, 1.0f);
         float pointLightConstant = 1.0f;
@@ -343,14 +343,14 @@ int main() {
 
         multiLightShaderProgram.setVec3("viewPos", camera.Position);
         //directional Light
-        multiLightShaderProgram.setVec3("dirLight.color", directionalLightColor);
-        multiLightShaderProgram.setVec3("dirLight.direction", directionalLightDir);
-        multiLightShaderProgram.setVec3("dirLight.ambient", ambientLight);
-        multiLightShaderProgram.setVec3("dirLight.diffuse", directionalLightDiffuse);
-        multiLightShaderProgram.setVec3("dirLight.specular", directionalLightSpecular);
+        multiLightShaderProgram.setVec3("directionalLight.color", directionalLightColor);
+        multiLightShaderProgram.setVec3("directionalLight.direction", directionalLightDir);
+        multiLightShaderProgram.setVec3("directionalLight.ambient", ambientLight);
+        multiLightShaderProgram.setVec3("directionalLight.diffuse", directionalLightDiffuse);
+        multiLightShaderProgram.setVec3("directionalLight.specular", directionalLightSpecular);
         //point Light 0
         multiLightShaderProgram.setVec3("pointLights[0].position", pointLightPositions[0]);
-        multiLightShaderProgram.setVec3("pointLights[0].color", pointLightColor);
+        multiLightShaderProgram.setVec3("pointLights[0].color", pointLightColors[0]);
         multiLightShaderProgram.setVec3("pointLights[0].ambient", ambientLight);
         multiLightShaderProgram.setVec3("pointLights[0].diffuse", pointLightDiffuse);
         multiLightShaderProgram.setVec3("pointLights[0].specular", pointLightSpecular);
@@ -359,7 +359,7 @@ int main() {
         multiLightShaderProgram.setFloat("pointLights[0].quadratic", pointLightQuadratic);
         //point Light 1
         multiLightShaderProgram.setVec3("pointLights[1].position", pointLightPositions[1]);
-        multiLightShaderProgram.setVec3("pointLights[1].color", pointLightColor);
+        multiLightShaderProgram.setVec3("pointLights[1].color", pointLightColors[1]);
         multiLightShaderProgram.setVec3("pointLights[1].ambient", ambientLight);
         multiLightShaderProgram.setVec3("pointLights[1].diffuse", pointLightDiffuse);
         multiLightShaderProgram.setVec3("pointLights[1].specular", pointLightSpecular);
@@ -368,7 +368,7 @@ int main() {
         multiLightShaderProgram.setFloat("pointLights[1].quadratic", pointLightQuadratic);
         //point Light 2 
         multiLightShaderProgram.setVec3("pointLights[2].position", pointLightPositions[2]);
-        multiLightShaderProgram.setVec3("pointLights[2].color", pointLightColor);
+        multiLightShaderProgram.setVec3("pointLights[2].color", pointLightColors[2]);
         multiLightShaderProgram.setVec3("pointLights[2].ambient", ambientLight);
         multiLightShaderProgram.setVec3("pointLights[2].diffuse", pointLightDiffuse);
         multiLightShaderProgram.setVec3("pointLights[2].specular", pointLightSpecular);
@@ -377,7 +377,7 @@ int main() {
         multiLightShaderProgram.setFloat("pointLights[2].quadratic", pointLightQuadratic);
         //point Light 3
         multiLightShaderProgram.setVec3("pointLights[3].position", pointLightPositions[3]);
-        multiLightShaderProgram.setVec3("pointLights[3].color", pointLightColor);
+        multiLightShaderProgram.setVec3("pointLights[3].color", pointLightColors[3]);
         multiLightShaderProgram.setVec3("pointLights[3].ambient", ambientLight);
         multiLightShaderProgram.setVec3("pointLights[3].diffuse", pointLightDiffuse);
         multiLightShaderProgram.setVec3("pointLights[3].specular", pointLightSpecular);
