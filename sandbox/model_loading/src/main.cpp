@@ -12,28 +12,17 @@
 #include <glm/gtc/type_ptr.hpp>
 // #include <chrono>
 #include "Shader.h"
+#include "Model.h"
 #include "camera.h"
 #include "stb_image.h"
 
 const int SCREEN_WIDTH = 1024;
 const int SCREEN_HEIGHT = 1024;
 std::string PROJECT_DIR =
-    "/home/emergentstupidity/persProj/3D_Graphics_renderer/sandbox/lighting/casters_and_multi_lights/";
+    "/home/emergentstupidity/persProj/3D_Graphics_renderer/sandbox/lighting/model_loading/";
+std::string MODEL_DIR = PROJECT_DIR + "Models/"
 std::string TEXTURE_DIR = PROJECT_DIR + "Textures/";
 std::string SHADERS_DIR = PROJECT_DIR + "src/shaders/";
-
-struct PhongMaterial{
-    int diffuseMap; //int represents the texture unit array index
-    int specularMap; //int represents the texture unit array index
-    float shininess;
-};
-
-void setShaderMaterial(const Shader& shaderProgram, const PhongMaterial& material){
-    shaderProgram.setInt("material.diffuseMap", material.diffuseMap);
-    shaderProgram.setInt("material.specularMap", material.specularMap);
-    shaderProgram.setFloat("material.shininess", material.shininess);
-}
-
 
 void processUserInput(bool& windowShouldClose, Camera& camera, double& deltaTime) {
 
@@ -159,116 +148,15 @@ int main() {
     glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     glEnable(GL_DEPTH_TEST);
 
+
     Shader lightCubeShaderProgram{(SHADERS_DIR + "lightBoxVertex.glsl").c_str(),
         (SHADERS_DIR + "lightBoxFragment.glsl").c_str()};
     Shader multiLightShaderProgram{(SHADERS_DIR + "multiLightVertex.glsl").c_str(),
         (SHADERS_DIR + "multiLightFragment.glsl").c_str()};
-    // clang-format off
-    // pos(xyz), normal unit vector(xyz), texture(uv). 6 vertices per face, 6 faces 
-    float vertices[] = {
-        // positions          // normals           // texture coords
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,   
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,    
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,    
-        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,   
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
-        
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f,  1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f,  1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f,  1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f,  0.0f,
+    
+    stbi_set_flip_vertically_on_load(true);
+    Model backpackModel((MODELS_DIR + "backpack/backpack.obj").c_str());
 
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-        
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
-
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
-    };
-    glm::vec3 cubePositions[] = {
-        glm::vec3(0.0f, 0.0f, 0.0f), 
-        glm::vec3(2.0f, 5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3(2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f, 3.0f, -7.5f), 
-        glm::vec3(1.3f, -2.0f, -2.5f), 
-        glm::vec3(1.5f, 2.0f, -2.5f),
-        glm::vec3(1.5f, 0.2f, -1.5f),
-        glm::vec3(-1.3f, 1.0f, -1.5f)
-    };
-
-    glm::vec3 pointLightPositions[] = {
-        glm::vec3( 0.7f, 0.2f, 2.0f),
-        glm::vec3(2.3f, -3.3f, -4.0f),
-        glm::vec3( -4.0f, 2.0f, -12.0f),
-        glm::vec3( 0.0f, 0.0f, -3.0f),
-    };
-    glm::vec3 pointLightColors[] = {
-        glm::vec3(1.0f),
-        glm::vec3(1.0f, 0.0f, 0.0f),
-        glm::vec3(0.0f, 1.0f, 0.0f),
-        glm::vec3(0.0f, 0.0f, 1.0f),
-    };
-    // clang-format on
-
-    //========================
-    // VBO(data) and VAO (attrib interpretation)
-    //========================
-    // VBO: RAW vertex data
-    // -------------------------
-    GLuint VBO;
-    glGenBuffers(1, &VBO);              // buffers are what is being batched CPU->GPU for reduced IO
-    glBindBuffer(GL_ARRAY_BUFFER, VBO); // binds VBO to GL_ARRAY_BUFFER target (i.e sets VBO as "the one being used)
-    // allocates size and puts vertices[] data onto GPU
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    // VAO: how VBO should be interpreted.
-    // ----------------------------------------
-    GLuint VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO); // Make VAO the current VAO by binding it
-
-    // Hardcode attribute location since VAO defines attrib location.
-    // Position attribs
-    // Defines interpretation of attrib from bound VBO onto bound VAO
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)0);
-    // Normal unit vector pos
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(float)));
-    // texture coord attribute
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(0); // Enable pos attrib
-    glEnableVertexAttribArray(1); // Enable normal unit vector attrib
-    glEnableVertexAttribArray(2); // Enable tex attrib
-
-
-    GLuint woodenBoxDiffuseMap = loadTexture((TEXTURE_DIR + "woodenBoxDiffuseMap.jpg").c_str());
-    GLuint steelRimmedCrateDiffuseMap = loadTexture((TEXTURE_DIR + "steelRimmedCrateDiffuseMap.png").c_str());
-    GLuint steelRimmedCrateSpecularMap = loadTexture((TEXTURE_DIR + "steelRimmedCrateSpecularMap.png").c_str());
 
     // defined outside of loop as projection rarely changes
     glm::mat4 projection_transform = glm::mat4(1.0f);
@@ -296,140 +184,20 @@ int main() {
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Bind Texture Object to Texture Unit Array slots
-        glActiveTexture(GL_TEXTURE0); // where is is between 0 and GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS. Selects the slot
-                                      // of textures looking at (in texture unit array)
-        glBindTexture(GL_TEXTURE_2D,
-            woodenBoxDiffuseMap); // assigns the texture to active slot (in texture unit array). GL_TEXTURE_2D =
-                                  // location or target in GL context, changes how GL uses bound data
 
-        glActiveTexture(GL_TEXTURE0 + 1);
-        glBindTexture(GL_TEXTURE_2D, steelRimmedCrateDiffuseMap);
-
-        glActiveTexture(GL_TEXTURE0 + 2);
-        glBindTexture(GL_TEXTURE_2D, steelRimmedCrateSpecularMap);
-
+        //set projection and view transforms
         multiLightShaderProgram.use();
-        PhongMaterial steelRimmedCrateMaterial = {
-            .diffuseMap = 1,
-            .specularMap = 2,
-            .shininess = 32.0,
-        };
-        setShaderMaterial(multiLightShaderProgram, steelRimmedCrateMaterial);
-
-        //shader values
-        glm::vec3 ambientLight = glm::vec3(0.05f, 0.05f, 0.05f);
-        //direciontal Light Values
-        glm::vec3 directionalLightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-        glm::vec3 directionalLightDir = glm::vec3(-0.2f, -1.0f, -0.3f);
-        glm::vec3 directionalLightDiffuse = glm::vec3(0.4f, 0.4f, 0.4f);
-        glm::vec3 directionalLightSpecular =  glm::vec3(0.5f, 0.5f, 0.5f);
-        //point Light Values 
-        glm::vec3 pointLightDiffuse = glm::vec3(0.8f, 0.8f, 0.8f);
-        glm::vec3 pointLightSpecular= glm::vec3(1.0f, 1.0f, 1.0f);
-        float pointLightConstant = 1.0f;
-        float pointLightLinear = 0.09f;
-        float pointLightQuadratic = 0.032f;
-        //spot Light Values
-        glm::vec3 spotLightColor = glm::vec3(0.0f, 1.0f, 1.0f);
-        glm::vec3 spotLightAmbient = glm::vec3(0.0f);
-        glm::vec3 spotLightDiffuse = glm::vec3(1.0f);
-        glm::vec3 spotLightSpecular= glm::vec3(1.0f);
-        float spotLightConstant = 1.0f;
-        float spotLightLinear = 0.09f;
-        float spotLightQuadratic = 0.032f;
-        float spotLightInnerCutOff = glm::cos(glm::radians(12.5f));
-        float spotLightOuterCutOff = glm::cos(glm::radians(17.5f));
-
-        multiLightShaderProgram.setVec3("viewPos", camera.Position);
-        //directional Light
-        multiLightShaderProgram.setVec3("directionalLight.color", directionalLightColor);
-        multiLightShaderProgram.setVec3("directionalLight.direction", directionalLightDir);
-        multiLightShaderProgram.setVec3("directionalLight.ambient", ambientLight);
-        multiLightShaderProgram.setVec3("directionalLight.diffuse", directionalLightDiffuse);
-        multiLightShaderProgram.setVec3("directionalLight.specular", directionalLightSpecular);
-        //point Light 0
-        multiLightShaderProgram.setVec3("pointLights[0].position", pointLightPositions[0]);
-        multiLightShaderProgram.setVec3("pointLights[0].color", pointLightColors[0]);
-        multiLightShaderProgram.setVec3("pointLights[0].ambient", ambientLight);
-        multiLightShaderProgram.setVec3("pointLights[0].diffuse", pointLightDiffuse);
-        multiLightShaderProgram.setVec3("pointLights[0].specular", pointLightSpecular);
-        multiLightShaderProgram.setFloat("pointLights[0].constant", pointLightConstant);
-        multiLightShaderProgram.setFloat("pointLights[0].linear", pointLightLinear);
-        multiLightShaderProgram.setFloat("pointLights[0].quadratic", pointLightQuadratic);
-        //point Light 1
-        multiLightShaderProgram.setVec3("pointLights[1].position", pointLightPositions[1]);
-        multiLightShaderProgram.setVec3("pointLights[1].color", pointLightColors[1]);
-        multiLightShaderProgram.setVec3("pointLights[1].ambient", ambientLight);
-        multiLightShaderProgram.setVec3("pointLights[1].diffuse", pointLightDiffuse);
-        multiLightShaderProgram.setVec3("pointLights[1].specular", pointLightSpecular);
-        multiLightShaderProgram.setFloat("pointLights[1].constant", pointLightConstant);
-        multiLightShaderProgram.setFloat("pointLights[1].linear", pointLightLinear);
-        multiLightShaderProgram.setFloat("pointLights[1].quadratic", pointLightQuadratic);
-        //point Light 2 
-        multiLightShaderProgram.setVec3("pointLights[2].position", pointLightPositions[2]);
-        multiLightShaderProgram.setVec3("pointLights[2].color", pointLightColors[2]);
-        multiLightShaderProgram.setVec3("pointLights[2].ambient", ambientLight);
-        multiLightShaderProgram.setVec3("pointLights[2].diffuse", pointLightDiffuse);
-        multiLightShaderProgram.setVec3("pointLights[2].specular", pointLightSpecular);
-        multiLightShaderProgram.setFloat("pointLights[2].constant", pointLightConstant);
-        multiLightShaderProgram.setFloat("pointLights[2].linear", pointLightLinear);
-        multiLightShaderProgram.setFloat("pointLights[2].quadratic", pointLightQuadratic);
-        //point Light 3
-        multiLightShaderProgram.setVec3("pointLights[3].position", pointLightPositions[3]);
-        multiLightShaderProgram.setVec3("pointLights[3].color", pointLightColors[3]);
-        multiLightShaderProgram.setVec3("pointLights[3].ambient", ambientLight);
-        multiLightShaderProgram.setVec3("pointLights[3].diffuse", pointLightDiffuse);
-        multiLightShaderProgram.setVec3("pointLights[3].specular", pointLightSpecular);
-        multiLightShaderProgram.setFloat("pointLights[3].constant", pointLightConstant);
-        multiLightShaderProgram.setFloat("pointLights[3].linear", pointLightLinear);
-        multiLightShaderProgram.setFloat("pointLights[3].quadratic", pointLightQuadratic);
-        //spotlight (flashlight)
-        multiLightShaderProgram.setVec3("spotLights[0].position", camera.Position);
-        multiLightShaderProgram.setVec3("spotLights[0].color", spotLightColor);
-        multiLightShaderProgram.setVec3("spotLights[0].direction", camera.Front);
-        multiLightShaderProgram.setVec3("spotLights[0].ambient", spotLightAmbient);
-        multiLightShaderProgram.setVec3("spotLights[0].diffuse", spotLightDiffuse);
-        multiLightShaderProgram.setVec3("spotLights[0].specular", spotLightSpecular);
-        multiLightShaderProgram.setFloat("spotLights[0].constant", spotLightConstant);
-        multiLightShaderProgram.setFloat("spotLights[0].linear", spotLightLinear);
-        multiLightShaderProgram.setFloat("spotLights[0].quadratic", spotLightQuadratic);
-        multiLightShaderProgram.setFloat("spotLights[0].innerCutOff", spotLightInnerCutOff);
-        multiLightShaderProgram.setFloat("spotLights[0].outerCutOff", spotLightOuterCutOff);
-
-
-        // bind VAO so gl knows to use it
-        glBindVertexArray(VAO);
-
-        // create tansformations - instantiate matrices. Reset for each cube
-        // otherwise transform matrices accumulate;
-        glm::mat4 model_transform;
         glm::mat4 view_transform = camera.GetViewMatrix();
-        // // draw normal objects (not light box)
-        for(GLuint i = 0; i < 10; i++) {
-            model_transform = glm::mat4(1.0f);
-            model_transform = glm::translate(model_transform, cubePositions[i]);
-            model_transform =
-                glm::rotate(model_transform, (float)(SDL_GetTicks64() / 1000.0 + i * 2), glm::vec3(1.0f, 1.0f, 1.0f));
-            multiLightShaderProgram.use();
-            multiLightShaderProgram.setMat4("model_transform", model_transform);
-            multiLightShaderProgram.setMat4("view_transform", view_transform);
-            multiLightShaderProgram.setMat4("projection_transform", projection_transform);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
-        // draw lightbox
-        lightCubeShaderProgram.use();
-        lightCubeShaderProgram.setMat4("projection_transform", projection_transform);
-        lightCubeShaderProgram.setMat4("view_transform", view_transform);
-        //for each point light
-        for(GLuint i =0; i < 4; i++){
-            model_transform = glm::mat4(1.0f);
-            model_transform = glm::translate(model_transform, pointLightPositions[i]);
-            model_transform = glm::scale(model_transform, glm::vec3(0.2f));
-            lightCubeShaderProgram.setMat4("model_transform", model_transform);
-            lightCubeShaderProgram.setVec3("lightColor", pointLightColors[i]);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
+        multiLightShaderProgram.setMat4("projection_transform", projection_transform);
+        multiLightShaderProgram.setMat4("view_transform", view_transform);
+        
+        //render loaded model
+        glm::mat4 model_transform = glm::mat4(1.0f);
+        model_transform = glm::translate(model_transform, glm::vec3(0.0f));
+        model_transform = glm::scale(model_transform, glm::vec3(1.0f));
+        multiLightShaderProgram.setMat4("model_transform", model_transform);
+        backpackModel.Draw(multiLightShaderProgram);
+
 
         //    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
         SDL_GL_SwapWindow(SDL_window);
