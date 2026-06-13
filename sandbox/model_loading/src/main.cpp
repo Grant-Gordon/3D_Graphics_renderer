@@ -19,8 +19,8 @@
 const int SCREEN_WIDTH = 1024;
 const int SCREEN_HEIGHT = 1024;
 std::string PROJECT_DIR =
-    "/home/emergentstupidity/persProj/3D_Graphics_renderer/sandbox/lighting/model_loading/";
-std::string MODEL_DIR = PROJECT_DIR + "Models/"
+    "/home/emergentstupidity/persProj/3D_Graphics_renderer/sandbox//model_loading/";
+std::string MODEL_DIR = PROJECT_DIR + "Models/";
 std::string TEXTURE_DIR = PROJECT_DIR + "Textures/";
 std::string SHADERS_DIR = PROJECT_DIR + "src/shaders/";
 
@@ -73,45 +73,6 @@ void processUserInput(bool& windowShouldClose, Camera& camera, double& deltaTime
 }
 
 
-unsigned int loadTexture(char const* path) {
-    GLuint textureID;
-    glGenTextures(1, &textureID);
-
-    GLint width, height, nrComponents;
-    unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
-
-    if(!data) {
-        std::cout << "Failed to load texture at path: " << path << std::endl;
-        stbi_image_free(data);
-        return textureID;
-    }
-    // specify data format
-    GLenum format;
-    if(nrComponents == 1) {
-        format = GL_RED;
-    } else if(nrComponents == 3) {
-        format = GL_RGB;
-    } else if(nrComponents == 4) {
-        format = GL_RGBA;
-    } else {
-        std::cout << "value of nrComponents (" << nrComponents << ") is not supported for textures" << std::endl;
-        stbi_image_free(data);
-        return textureID;
-    }
-
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    // set the texture wrapping/filtering options (on the currently bound texture
-    // object)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    stbi_image_free(data);
-    return textureID;
-}
 
 int main() {
     //===========================================
@@ -149,13 +110,16 @@ int main() {
     glEnable(GL_DEPTH_TEST);
 
 
-    Shader lightCubeShaderProgram{(SHADERS_DIR + "lightBoxVertex.glsl").c_str(),
-        (SHADERS_DIR + "lightBoxFragment.glsl").c_str()};
-    Shader multiLightShaderProgram{(SHADERS_DIR + "multiLightVertex.glsl").c_str(),
-        (SHADERS_DIR + "multiLightFragment.glsl").c_str()};
+    // Shader lightCubeShaderProgram{(SHADERS_DIR + "lightBoxVertex.glsl").c_str(),
+    //     (SHADERS_DIR + "lightBoxFragment.glsl").c_str()};
+    // Shader multiLightShaderProgram{(SHADERS_DIR + "multiLightVertex.glsl").c_str(),
+    //     (SHADERS_DIR + "multiLightFragment.glsl").c_str()};
+    
+    Shader bareModelShaderProgram{(SHADERS_DIR + "bareModelVertex.glsl").c_str(),
+        (SHADERS_DIR + "bareModelFragment.glsl").c_str()};
     
     stbi_set_flip_vertically_on_load(true);
-    Model backpackModel((MODELS_DIR + "backpack/backpack.obj").c_str());
+    Model backpackModel((MODEL_DIR + "backpack/backpack.obj").c_str());
 
 
     // defined outside of loop as projection rarely changes
@@ -186,17 +150,21 @@ int main() {
 
 
         //set projection and view transforms
-        multiLightShaderProgram.use();
+        bareModelShaderProgram.use();
         glm::mat4 view_transform = camera.GetViewMatrix();
-        multiLightShaderProgram.setMat4("projection_transform", projection_transform);
-        multiLightShaderProgram.setMat4("view_transform", view_transform);
+        bareModelShaderProgram.setMat4("projectionTransform", projection_transform);
+        bareModelShaderProgram.setMat4("viewTransform", view_transform);
+
+
+        //set lighting values
+        
         
         //render loaded model
         glm::mat4 model_transform = glm::mat4(1.0f);
         model_transform = glm::translate(model_transform, glm::vec3(0.0f));
         model_transform = glm::scale(model_transform, glm::vec3(1.0f));
-        multiLightShaderProgram.setMat4("model_transform", model_transform);
-        backpackModel.Draw(multiLightShaderProgram);
+        bareModelShaderProgram.setMat4("modelTransform", model_transform);
+        backpackModel.Draw(bareModelShaderProgram);
 
 
         //    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
@@ -208,8 +176,6 @@ int main() {
     //===========================================
     // Deconstructors/ End Game Loop
     //===========================================
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
     SDL_DestroyWindow(SDL_window);
     return 0;
 }

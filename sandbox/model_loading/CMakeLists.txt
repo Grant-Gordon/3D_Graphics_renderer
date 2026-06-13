@@ -26,6 +26,8 @@ add_executable(models
     "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/camera.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/Shader.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/Mesh.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/Model.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/externals/stb_image.cpp"
 )
 #sets header search paths e.g. when searching compiling "target" search these dirs for headers
@@ -33,17 +35,21 @@ target_include_directories( models PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
     "${CMAKE_CURRENT_SOURCE_DIR}/externals"
     "${CMAKE_CURRENT_SOURCE_DIR}/externals/assimp/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/externals/assimp/build/include"
 )
 
 
 # SDL2 + SDL2_image via pkg-config (robust on Ubuntu)
 find_package(PkgConfig REQUIRED)
 
+
 pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
 pkg_check_modules(SDL2_IMAGE REQUIRED IMPORTED_TARGET SDL2_image)
 
 
 find_package(OpenGL REQUIRED)
+
+find_package(ZLIB REQUIRED)
 
 target_link_libraries(models  PRIVATE 
     glad 
@@ -52,6 +58,7 @@ target_link_libraries(models  PRIVATE
     PkgConfig::SDL2
     PkgConfig::SDL2_IMAGE
     "${CMAKE_CURRENT_SOURCE_DIR}/externals/assimp/build/lib/libassimp.a"
+    ZLIB::ZLIB #comes AFTER libassimp.a --depedencies come AFTER the static library that uses it. 
 )
 
 

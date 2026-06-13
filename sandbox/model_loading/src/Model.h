@@ -14,7 +14,7 @@
 
 class Model {
 public:
-    Model(char* path);
+    Model(const char* path);
     void Draw(Shader& shader);
 
 private:
@@ -25,6 +25,7 @@ private:
     void processNode(aiNode* node, const aiScene* scene);
     Mesh processMesh(aiMesh* mesh, const aiScene* scene);
     std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+    GLuint TextureFromFile(char const* path, const std::string &directory);
 };
 
 #endif // MODEL_H

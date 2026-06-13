@@ -2,6 +2,7 @@
 
 #include "Mesh.h"
 #include "Shader.h"
+#include "stb_image.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
@@ -10,7 +11,7 @@
 #include <iostream>
 
 
-Model::Model(char* path) {
+Model::Model(const char* path) {
     loadModel(path);
 }
 
@@ -100,7 +101,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
         mat->GetTexture(type, i, &str);
         bool skip = false;
         for(size_t j{0}; j < texturesLoaded.size(); ++j) {
-            if(std::strcmp(texturesLoaded[j].path.data(), str.C_str()) == 0) {
+            if(std::strcmp(texturesLoaded[j].path.data(), str.C_Str()) == 0) {
                 textures.push_back(texturesLoaded[j]);
                 skip = true;
                 break;
@@ -108,12 +109,52 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
         }
         if(!skip) {
             Texture texture;
-            texture.id = TextureFromFile(str.C_str(), directory);
+            texture.id = TextureFromFile(str.C_Str(), directory);
             texture.type = typeName;
-            texture.path = str.C_str();
+            texture.path = str.C_Str();
             textures.push_back(texture);
             texturesLoaded.push_back(texture);
         }
     }
     return textures;
+}
+
+GLuint Model::TextureFromFile(char const* path, const std::string &directory) {
+    std::string filename = directory + '/' + std::string(path);
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+
+    GLint width, height, nrComponents;
+    unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
+    if(!data) {
+        std::cout << "Failed to load texture at path: " << filename << std::endl;
+        stbi_image_free(data);
+        return textureID;
+    }
+    // specify data format
+    GLenum format;
+    if(nrComponents == 1) {
+        format = GL_RED;
+    } else if(nrComponents == 3) {
+        format = GL_RGB;
+    } else if(nrComponents == 4) {
+        format = GL_RGBA;
+    } else {
+        std::cout << "value of nrComponents (" << nrComponents << ") is not supported for textures" << std::endl;
+        stbi_image_free(data);
+        return textureID;
+    }
+
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    // set the texture wrapping/filtering options (on the currently bound texture
+    // object)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    stbi_image_free(data);
+    return textureID;
 }
