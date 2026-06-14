@@ -16,6 +16,8 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vecto
 void Mesh::Draw(Shader &shader){
     GLuint diffuseNr = 1;
     GLuint specularNr = 1;
+    //NOTE: this is a workaround to not knowing how many/of what type textures there are
+    //This assumes each texture is named texture_diffuseN or texture_specularN where 0 < N < gl-max-textures
     for(unsigned int i = 0; i < this->textures.size(); i++){
         glActiveTexture(GL_TEXTURE0+i);
         std::string number;
