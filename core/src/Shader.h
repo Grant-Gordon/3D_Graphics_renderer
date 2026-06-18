@@ -8,6 +8,7 @@ public:
     GLuint ID;
 
     Shader(const char* vertexPath, const char* fragmentPath);
+    ~Shader() = default;
 
     void use();
 

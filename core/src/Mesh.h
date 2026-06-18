@@ -25,6 +25,7 @@ public:
     std::vector<Texture> textures;
     
     Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vector<Texture> textures);
+    ~Mesh() = default;
     void Draw(Shader &shader);
 private:
     GLuint m_VAO;

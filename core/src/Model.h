@@ -15,6 +15,7 @@
 class Model {
 public:
     Model(const char* path);
+    ~Model() = default;
     void Draw(Shader& shader);
 
 private:

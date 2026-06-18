@@ -4,12 +4,14 @@
 #include "GameObject.h"
 #include "Camera.h"
 
-class playerCharacter: public GameObject {
+class PlayerCharacter: public GameObject {
 public:
+    PlayerCharacter();
+    PlayerCharacter(const unsigned int playerID, Model* Model, , Transform transform);
+    ~PlayerCharacter() = default;
     const unsigned int playerID;
 
 private:
     Camera m_camera;
-    void draw() overide;
 };
 #endif // PLAYER_CHARACTER_H

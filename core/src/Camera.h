@@ -54,6 +54,7 @@ public:
         float yaw,
         float pitch 
     );
+    ~Camera() = default;
 
     glm::mat4 getViewMatrix();
 
