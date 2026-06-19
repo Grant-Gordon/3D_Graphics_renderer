@@ -5,19 +5,27 @@
 #include "LightTypes.h"
 
 #include <vector>
+#include <string>
 
 class LevelMap {
 public:
     LevelMap();
-    LevelMap(std::vector<GameObject> staticObjects, std::vector<PointLight> pointLights, std::vector<SpotLight> spotLights, DirectionalLight sun);
+    //TODO: figure out consts
+    LevelMap(std::string levelPath);
     ~LevelMap() = default;
 
-    std::vector<GameObject> staticObjects;
+    //Getters
+    const std::vector<GameObject> getStaticObjects() const;
 
-    std::vector<PointLight> pointLights;
-    std::vector<SpotLight> spotLights;
-    DirectionalLight sun;
+    const std::vector<PointLight> getPointLights() const;
+    const std::vector<SpotLight> getSpotLights() const;
+    const DirectionalLight getSun() const;
 
 private:
+    std::vector<GameObject> m_staticObjects;
+
+    std::vector<PointLight> m_pointLights;
+    std::vector<SpotLight> m_spotLights;
+    DirectionalLight m_sun;
 };
 #endif // LEVEL_MAP_H

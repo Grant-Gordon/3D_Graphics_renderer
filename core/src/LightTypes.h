@@ -22,9 +22,9 @@ struct PointLight {
     glm::vec3 specular;
 
     // attenuation
-    glm::vec3 constant;
-    glm::vec3 linear;
-    glm::vec3 quadratic;
+    float constant;
+    float linear;
+    float quadratic;
 };
 
 struct SpotLight {

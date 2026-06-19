@@ -8,7 +8,7 @@
 GameState::GameState(){};
 
 GameState::GameState(LevelMap levelMap, std::vector<PlayerCharacter> playerCharacters, std::vector<GameObject> dynamicObjects):
-levelMap(levelMap),
-playerCharacters(playerCharacters),
-dynamicObjects(dynamicObjects){
+m_levelMap(levelMap),
+m_playerCharacters(playerCharacters),
+m_dynamicObjects(dynamicObjects){
 }

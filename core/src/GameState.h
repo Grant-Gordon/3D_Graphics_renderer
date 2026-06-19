@@ -13,9 +13,9 @@ private:
     GameState(LevelMap levelMap, std::vector<PlayerCharacter> playerCharacters, std::vector<GameObject> dynamicObjects);
     ~GameState() = default;
 
-    LevelMap levelMap;
-    std::vector<GameObject> dynamicObjects;
-    std::vector<PlayerCharacter> playerCharacters;
+    LevelMap m_levelMap;
+    std::vector<GameObject> m_dynamicObjects;
+    std::vector<PlayerCharacter> m_playerCharacters;
     
 };
 #endif // GAME_STATE_H

@@ -1,14 +1,7 @@
 #include "LevelMap.h"
 
-#include "LightTypes.h"
+#include <string>
 
-LevelMap::LevelMap();
-
-LevelMap::LevelMap(std::vector<GameObject> staticObjects,
-    std::vector<PointLight> pointLights,
-    std::vector<SpotLight> spotLights,
-    DirectionalLight sun):
-    staticObjects(staticObjects),
-    pointLights(pointLights),
-    spotLights(spotLights),
-    sun(sun) {};
+LevelMap::LevelMap(std::string levelPath){
+    
+}

@@ -1,0 +1,182 @@
+{
+  "name": "test_level",
+
+  "directionalLight": {
+    "direction": [-0.3, -1.0, -0.2],
+    "color": [1.0, 0.95, 0.85],
+
+    "ambient": [0.15, 0.14, 0.12],
+    "diffuse": [0.9, 0.85, 0.75],
+    "specular": [1.0, 0.95, 0.9],
+
+    "model": "Preprocessed_Models/cube.model"
+  },
+
+  "pointLights": [
+    {
+      "position": [-6.0, 2.0, -4.0],
+      "color": [1.0, 1.0, 1.0],
+
+      "ambient": [0.05, 0.05, 0.05],
+      "diffuse": [0.8, 0.8, 0.8],
+      "specular": [1.0, 1.0, 1.0],
+
+      "constant": 1.0,
+      "linear": 0.09,
+      "quadratic": 0.032,
+
+      "model": "Preprocessed_Models/cube.model"
+    },
+    {
+      "position": [4.0, 3.0, -3.0],
+      "color": [1.0, 0.2, 0.2],
+
+      "ambient": [0.05, 0.01, 0.01],
+      "diffuse": [0.9, 0.2, 0.2],
+      "specular": [1.0, 0.4, 0.4],
+
+      "constant": 1.0,
+      "linear": 0.09,
+      "quadratic": 0.032,
+
+      "model": "Preprocessed_Models/cube.model"
+    },
+    {
+      "position": [-2.0, 4.0, 5.0],
+      "color": [0.2, 1.0, 0.2],
+
+      "ambient": [0.01, 0.05, 0.01],
+      "diffuse": [0.2, 0.9, 0.2],
+      "specular": [0.4, 1.0, 0.4],
+
+      "constant": 1.0,
+      "linear": 0.09,
+      "quadratic": 0.032,
+
+      "model": "Preprocessed_Models/cube.model"
+    },
+    {
+      "position": [6.0, 2.5, 4.0],
+      "color": [0.2, 0.4, 1.0],
+
+      "ambient": [0.01, 0.02, 0.05],
+      "diffuse": [0.2, 0.4, 0.9],
+      "specular": [0.4, 0.6, 1.0],
+
+      "constant": 1.0,
+      "linear": 0.09,
+      "quadratic": 0.032,
+
+      "model": "Preprocessed_Models/cube.model"
+    },
+    {
+      "position": [0.0, 5.0, -6.0],
+      "color": [1.0, 0.2, 1.0],
+
+      "ambient": [0.05, 0.01, 0.05],
+      "diffuse": [0.9, 0.2, 0.9],
+      "specular": [1.0, 0.4, 1.0],
+
+      "constant": 1.0,
+      "linear": 0.09,
+      "quadratic": 0.032,
+
+      "model": "Preprocessed_Models/cube.model"
+    }
+  ],
+
+  "spotLights": [
+    {
+      "position": [-8.0, 6.0, -8.0],
+      "color": [1.0, 1.0, 1.0],
+
+      "ambient": [0.02, 0.02, 0.02],
+      "diffuse": [1.0, 1.0, 1.0],
+      "specular": [1.0, 1.0, 1.0],
+
+      "constant": 1.0,
+      "linear": 0.09,
+      "quadratic": 0.032,
+
+      "direction": [0.7, -0.5, 0.5],
+      "outerCutOff": 20.0,
+      "innerCutOff": 15.0,
+
+      "model": "Preprocessed_Models/cube.model"
+    },
+    {
+      "position": [8.0, 7.0, -2.0],
+      "color": [1.0, 0.8, 0.3],
+
+      "ambient": [0.03, 0.02, 0.01],
+      "diffuse": [1.0, 0.8, 0.3],
+      "specular": [1.0, 0.9, 0.5],
+
+      "constant": 1.0,
+      "linear": 0.09,
+      "quadratic": 0.032,
+
+      "direction": [-0.8, -0.4, 0.2],
+      "outerCutOff": 18.0,
+      "innerCutOff": 13.0,
+
+      "model": "Preprocessed_Models/cube.model"
+    },
+    {
+      "position": [0.0, 8.0, 8.0],
+      "color": [0.3, 0.8, 1.0],
+
+      "ambient": [0.01, 0.02, 0.03],
+      "diffuse": [0.3, 0.8, 1.0],
+      "specular": [0.5, 0.9, 1.0],
+
+      "constant": 1.0,
+      "linear": 0.09,
+      "quadratic": 0.032,
+
+      "direction": [0.0, -0.7, -0.7],
+      "outerCutOff": 22.0,
+      "innerCutOff": 17.0,
+
+      "model": "Preprocessed_Models/cube.model"
+    }
+  ],
+
+  "gameObjects": [
+    {
+      "model": "Preprocessed_Models/backpack.model",
+
+      "position": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "scale": [1.0, 1.0, 1.0]
+    },
+    {
+      "model": "Preprocessed_Models/backpack.model",
+
+      "position": [4.0, 0.0, 2.0],
+      "rotation": [0.0, 45.0, 0.0],
+      "scale": [0.75, 0.75, 0.75]
+    },
+    {
+      "model": "Preprocessed_Models/backpack.model",
+
+      "position": [-5.0, 0.0, 3.0],
+      "rotation": [0.0, 120.0, 0.0],
+      "scale": [1.5, 1.5, 1.5]
+    },
+    {
+      "model": "Preprocessed_Models/backpack.model",
+
+      "position": [2.0, 0.0, -5.0],
+      "rotation": [15.0, 200.0, 0.0],
+      "scale": [1.2, 1.2, 1.2]
+    },
+    {
+      "model": "Preprocessed_Models/backpack.model",
+
+      "position": [-3.0, 0.0, -4.0],
+      "rotation": [0.0, 315.0, 0.0],
+      "scale": [0.5, 0.5, 0.5]
+    }
+  ]
+}
