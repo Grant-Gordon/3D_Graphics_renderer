@@ -13,5 +13,6 @@ public:
 
 private:
     std::unordered_map<std::string, std::shared_ptr<Model>> m_modelCache; //(name, model*)
+
 };
 #endif // ASSET_MANAGER_H

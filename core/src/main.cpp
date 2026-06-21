@@ -110,6 +110,22 @@ int main() {
     glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     glEnable(GL_DEPTH_TEST);
 
+
+
+
+    //----------------------------------
+    // Core refactor pseudo
+    //----------------------------------
+    LevelMap.loadLevelFile(LEVEL_FILE_PATH);
+    PlayerCharacter localPlayer{};
+
+    GameState{};
+    Renderer renderer{};
+
+    //----------------------------------
+    // Core refactor pseudo
+    //----------------------------------
+
     //load shaders
     Shader lightCubeShaderProgram{(SHADERS_DIR + "lightBoxVertex.glsl").c_str(),
         (SHADERS_DIR + "lightBoxFragment.glsl").c_str()};

@@ -21,7 +21,7 @@ class Mesh {
 public:
     // mesh data
     std::vector<Vertex> vertices;
-    std::vector<GLuint> indices;
+    std::vector<GLuint> indices; //TODO: set to uint_32_t?
     std::vector<Texture> textures;
     
     Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vector<Texture> textures);

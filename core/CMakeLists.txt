@@ -29,6 +29,7 @@ add_executable(models
     "${CMAKE_CURRENT_SOURCE_DIR}/src/Mesh.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/Model.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/externals/stb_image.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/externals/json.hpp"
 )
 #sets header search paths e.g. when searching compiling "target" search these dirs for headers
 target_include_directories( models PRIVATE 

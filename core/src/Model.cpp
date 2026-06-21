@@ -8,14 +8,207 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <assimp/types.h>
+#include <fstream>
 #include <glad/glad.h>
 #include <iostream>
 
+Model::Model(const std::string& path){
+    Model model = deserialize(path);
+    for(Mesh mesh : model.meshes){
+        for(Texture tex : mesh.textures){
+            tex.id = textureFromFile(tex.type, tex.path);
+        }
+        mesh.setupMesh();
+    }
 
-Model::Model(const char* path) {
-    loadModel(path);
+
 }
 
+static Model Model::import(const char* path) { // assimp converter
+    loadModel(path);
+}
+// clang-format off
+    // Model:
+    //     std::vector<Mesh> m_meshes;
+    //     std::string m_directory;
+    //     std::vector<Texture> m_texturesLoaded; // saves from reloading same texture for each mesh
+    // Mesh:
+    //     struct Vertex {
+    //         glm::vec3 position;
+    //         glm::vec3 normal;
+    //         glm::vec2 texCoords;
+    //     };
+    //     struct Texture {
+    //         GLuint id;
+    //         std::string type;
+    //         std::string path;
+    //     };
+    //     std::vector<Vertex> vertices;
+    //     std::vector<GLuint> indices;
+    //     std::vector<Texture> textures;
+// clang-format on
+
+// clang-format off
+// MODEL:
+//     fileType = MODL_FILE_ID
+//     version = MODL_FILE_VERSION
+//     meshCount
+//     directoryLength
+//     directoryRaw
+//
+//     MESHES[]{
+//     ---------------------
+//     header{
+//     vertexCount
+//     indicesCount
+//     textureCount
+//     }
+//
+//     VertexDataRAW
+//     IndicesDataRAW
+//
+//     TEXTURES[]{
+//     typeLength
+//     typeRaw
+//     pathLength
+//     pathRaw
+//     }
+//     }
+// clang-format on
+void Model::serialize(const std::string& outFilename) {
+    std::ofstream file(outFilename, ios::binary);
+    if(!file.is_open()) {
+        std::cerr << "Error::Failed to open file for writing." << std::endl;
+        return;
+    }
+
+    ModelBinaryHeader modelHeader;
+    modelHeader.fileType = MODL_FILE_ID;
+    modelHeader.version = MODL_FILE_VERSION;
+    modelHeader.meshCount = m_meshes.size();
+    file.write(reinterpret_cast<const char*>(&modelHeader), sizeof(ModelBinaryHeader));
+    writeString(file, m_directory);
+
+    for(const Mesh& mesh: m_meshes) {
+        // Mesh Header
+        MeshBinaryHeader meshHeader;
+        MeshBinaryHeader meshHeader.vertexCount = mesh.vertices.size();
+        MeshBinaryHeader meshHeader.indicesCount = mesh.indices.size();
+        MeshBinaryHeader meshHeader.textureCount = mesh.textures.size();
+        file.write(reinterpret_cast<const char*>(&meshHeader), sizeof(MeshBinaryHeader));
+
+        // write data
+        file.write(reinterpret_cast<const char*>(mesh.vertices.data()),
+            sizeof(Vertex) * meshHeader.vertexCount); // should be safe since Vertex is POD (3 glm::vec3's)
+        file.write(reinterpret_cast<const char*>(mesh.indices.data()), sizeof(GLuint) * meshHeader.indicesCount);
+
+        for(const Texture& tex: mesh.textures) {
+            writeString(file, tex.type);
+            writeString(file, tex.path);
+        }
+    }
+
+    file.close();
+    std::cout << "Object serialized successfully." << std::endl;
+}
+
+namespace {
+    void writeString(std::ofstream& file, const std::string& str) {
+        const uint32_t len = str.size();
+        file.write(reinterpret_cast<const char*>(&len), sizeof(len));
+        file.write(str.data(), len);
+    }
+} // namespace
+
+
+static Model Model::deserialize(const std::string& filename) {
+    Model model{};
+    ModelBinaryHeader modelHeader;
+
+    std::ifstream file(filename, ios::binary);
+    if(!file.is_open()) {
+        std::cerr << "Error:: Failed to open file for reading." << std::endl;
+        return model;
+    }
+    // Note: Read consumes the stream, reads first n
+    file.read(reinterpret_cast<char*>(&modelHeader), sizeof(ModelBinaryHeader));
+    if(modelHeader.fileType != MODL_FILE_ID) { // TODO: str or uint? need to reinterpt?
+        std::cout << "Error headerFileType != " << MODL_FILE_ID
+                  << ", modelHeader.fileType = " << std::to_string(modelHeader.filetype) << std::endl;
+        return model;
+    }
+    if(modelHeader.version != MODL_FILE_VERSION) { // TODO: str or uint? need to
+                                                                                      // reinterpt?
+        std::cout << "Error Model File Version != " << MODL_FILE_VERSION
+                  << ", modelHeader.fileType = " << std::to_string(modelHeader.filetype) << std::endl;
+        return model;
+    }
+
+    model.m_directory = readString(file);
+
+
+    for(int m{0}; m < modelHeader.meshCount; ++m){
+        Mesh mesh{};
+        MeshBinaryHeader meshHeader;
+        file.read(reinterpret_cast<char*>(&meshHeader), sizeof(MeshBinaryHeader));
+
+        mesh.vertices.resize(meshHeader.vertexCount);
+        file.read(reinterpret_cast<char*>(mesh.vertices.data()), sizeof(Vertex) * meshHeader.vertexCount);
+
+        mesh.indices.resize(meshHeader.indicesCount);
+        file.read(reinterpret_cast<char*> (mesh.indices.data()), sizeof(GLuint) * meshHeader.indicesCount);
+
+        for(int t{0}; t < meshHeader.textureCount; t++) {
+            Texture tex;
+            tex.type = readString(file);
+            tex.path = readString(file);
+        }
+        model.push_back(mesh);
+        
+    }
+
+    file.close();
+    std::cout << "Object deserialized succsessfully." << std::endl;
+    return model;
+}
+
+namespace {
+    std::string readString(ifstream& file) {
+        uint32_t len;
+        file.read(reinperpret_cast<char*>(&len), sizeof(len));
+        std::string str(len, '\0');
+
+        file.read(str.data(), len);
+        return str;
+    }
+} // namespace
+// clang-format off
+// MODEL:
+//     fileType = MODL_FILE_ID
+//     version = MODL_FILE_VERSION
+//     meshCount
+//     directoryLength
+//     directoryRaw
+//
+//     MESHES[]{
+//     ---------------------
+//     header{
+//     vertexCount
+//     indicesCount
+//     textureCount
+//     }
+//
+//     VertexDataRAW
+//     IndicesDataRAW
+//
+//     TEXTURES[]{
+//     typeLength
+//     typeRaw
+//     pathLength
+//     pathRaw
+//     }
+//     }
+// clang-format on
 void Model::Draw(Shader& shader) {
     for(size_t i{0}; i < this->m_meshes.size(); ++i) { this->m_meshes[i].Draw(shader); }
 }
@@ -120,7 +313,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
     return textures;
 }
 
-GLuint Model::textureFromFile(char const* path, const std::string &directory) {
+GLuint Model::textureFromFile(char const* path, const std::string& directory) {
     std::string filename = directory + '/' + std::string(path);
     GLuint textureID;
     glGenTextures(1, &textureID);

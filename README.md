@@ -56,3 +56,8 @@ For this project we'll use static for ease of use. This comes at the trade off o
 Hence the DBUILD_SHARED_LIB=OFF flag in the cmake command above. \ 
 
 There should now be a "./build/lib/libassimp.a" and a "./generated/assimpConfig.cmake" file if everything went smoothly
+
+##### Json Parser
+
+should be simple enough. Downlaod json.hpp from href{https://github.com/nlohmann/json/blob/develop/single_include/nlohmann/json.hpp} \ 
+move it to externals/ done.
