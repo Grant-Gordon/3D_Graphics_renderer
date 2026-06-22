@@ -1,11 +1,12 @@
 #ifndef MESH_H
 #define MESH_H
-#include <string>
-#include <vector>
+#include "Shader.h"
+
 #include <glad/glad.h> //TODO: header gaurds
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "Shader.h"
+#include <string>
+#include <vector>
 
 struct Vertex {
     glm::vec3 position;
@@ -21,12 +22,13 @@ class Mesh {
 public:
     // mesh data
     std::vector<Vertex> vertices;
-    std::vector<GLuint> indices; //TODO: set to uint_32_t?
+    std::vector<GLuint> indices; // TODO: set to uint_32_t?
     std::vector<Texture> textures;
-    
+
     Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vector<Texture> textures);
     ~Mesh() = default;
-    void Draw(Shader &shader);
+    void Draw(Shader& shader);
+
 private:
     GLuint m_VAO;
     GLuint m_VBO;

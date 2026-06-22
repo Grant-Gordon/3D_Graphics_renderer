@@ -75,7 +75,7 @@ static Model Model::import(const char* path) { // assimp converter
 //     }
 //     }
 // clang-format on
-void Model::serialize(const std::string& outFilename) {
+void Model::serialize(const std::string& outFilePath) {
     std::ofstream file(outFilename, ios::binary);
     if(!file.is_open()) {
         std::cerr << "Error::Failed to open file for writing." << std::endl;
@@ -121,7 +121,7 @@ namespace {
 } // namespace
 
 
-static Model Model::deserialize(const std::string& filename) {
+static Model Model::deserialize(const std::string& modelPath) {
     Model model{};
     ModelBinaryHeader modelHeader;
 

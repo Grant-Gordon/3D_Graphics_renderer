@@ -1,5 +1,6 @@
 #ifndef MODEL_H
 #define MODEL_H
+
 #include "Mesh.h"
 #include "Shader.h"
 
@@ -15,12 +16,11 @@
 
 
 static constexpr uint32_t MODL_FILE_ID = 0x4D4F444C; //"MODL" //notsure the use of static here
-static constexpr uint32_t MODL_FILE_VERSION = 1; //"MODL" //notsure the use of static here
+static constexpr uint32_t MODL_FILE_VERSION = 1;     //"MODL" //notsure the use of static here
 struct ModelBinaryHeader {
     uint32_t fileType;
     uint32_t version;
     uint32_t meshCount;
-
 };
 struct MeshBinaryHeader {
     uint32_t vertexCount;
@@ -31,13 +31,14 @@ struct MeshBinaryHeader {
 
 class Model {
 public:
-    Model(const std::string& path);
-    static Model import(const char* path); //assimp converter
-    static Model deserialize(const std::string& filename); //constructor from model binary
+    Model() = default;
+    Model(const std::string& path);                         // path to .model for deserialization
+    static Model import(const char* path);                  // assimp converter
+    static Model deserialize(const std::string& modelPath); // constructor from model binary
 
-    void serialize(const std::string& outFilename);
+    void serialize(const std::string& outFilePath);
     void Draw(Shader& shader);
-    
+
     ~Model() = default;
 
 private:

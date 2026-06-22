@@ -16,14 +16,10 @@
 #include "Model.h"
 #include "camera.h"
 #include "stb_image.h"
+#include "env.h"
 
 const int SCREEN_WIDTH = 1024;
 const int SCREEN_HEIGHT = 1024;
-std::string PROJECT_DIR =
-    "/home/emergentstupidity/persProj/3D_Graphics_renderer/sandbox//model_loading/";
-std::string MODEL_DIR = PROJECT_DIR + "Models/";
-std::string TEXTURE_DIR = PROJECT_DIR + "Textures/";
-std::string SHADERS_DIR = PROJECT_DIR + "src/shaders/";
 
 void processUserInput(bool& windowShouldClose, Camera& camera, double& deltaTime) {
 

@@ -1,18 +1,26 @@
 #ifndef ASSET_MANAGER_H
 #define ASSET_MANAGER_H
 
-#include <memory>
 #include "Model.h"
-#include <unordered_map>
+
+#include <memory>
 #include <string>
+#include <unordered_map>
 
-class AssetManager{
+struct Asset{
+    std::string name;
+    std::string path;
+};
 
+class AssetManager {
 public:
-    std::shared_ptr<Model> loadModel(const std::string& path);
+    AssetManager() = default;
+    ~AssetManager() = default;
+
+    void loadModel(const Asset& asset);
+    std::shared_ptr<Model> getModel(const Asset& asset);
 
 private:
     std::unordered_map<std::string, std::shared_ptr<Model>> m_modelCache; //(name, model*)
-
 };
 #endif // ASSET_MANAGER_H

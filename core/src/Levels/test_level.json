@@ -9,7 +9,7 @@
     "diffuse": [0.9, 0.85, 0.75],
     "specular": [1.0, 0.95, 0.9],
 
-    "model": "Preprocessed_Models/cube.model"
+    "assetModel": ["cube", "cube.model"]
   },
 
   "pointLights": [
@@ -24,8 +24,11 @@
       "constant": 1.0,
       "linear": 0.09,
       "quadratic": 0.032,
-
-      "model": "Preprocessed_Models/cube.model"
+      "assetModel": ["cube", "cube.model"]
+            
+      "position": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "scale": [1.0, 1.0, 1.0]
     },
     {
       "position": [4.0, 3.0, -3.0],
@@ -39,7 +42,11 @@
       "linear": 0.09,
       "quadratic": 0.032,
 
-      "model": "Preprocessed_Models/cube.model"
+    "assetModel": ["cube", "cube.model"]
+            
+      "position": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "scale": [1.0, 1.0, 1.0]
     },
     {
       "position": [-2.0, 4.0, 5.0],
@@ -53,7 +60,11 @@
       "linear": 0.09,
       "quadratic": 0.032,
 
-      "model": "Preprocessed_Models/cube.model"
+    "assetModel": ["cube", "cube.model"]
+            
+      "position": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "scale": [1.0, 1.0, 1.0]
     },
     {
       "position": [6.0, 2.5, 4.0],
@@ -67,7 +78,11 @@
       "linear": 0.09,
       "quadratic": 0.032,
 
-      "model": "Preprocessed_Models/cube.model"
+    "assetModel": ["cube", "cube.model"]
+            
+      "position": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "scale": [1.0, 1.0, 1.0]
     },
     {
       "position": [0.0, 5.0, -6.0],
@@ -81,7 +96,11 @@
       "linear": 0.09,
       "quadratic": 0.032,
 
-      "model": "Preprocessed_Models/cube.model"
+      "assetModel": ["cube", "cube.model"]
+            
+      "position": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "scale": [1.0, 1.0, 1.0]
     }
   ],
 
@@ -101,8 +120,12 @@
       "direction": [0.7, -0.5, 0.5],
       "outerCutOff": 20.0,
       "innerCutOff": 15.0,
+      "assetModel": ["cube", "cube.model"]
+            
+      "position": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "scale": [1.0, 1.0, 1.0]
 
-      "model": "Preprocessed_Models/cube.model"
     },
     {
       "position": [8.0, 7.0, -2.0],
@@ -120,7 +143,11 @@
       "outerCutOff": 18.0,
       "innerCutOff": 13.0,
 
-      "model": "Preprocessed_Models/cube.model"
+      "assetModel": ["cube", "cube.model"]
+            
+      "position": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "scale": [1.0, 1.0, 1.0]
     },
     {
       "position": [0.0, 8.0, 8.0],
@@ -138,41 +165,45 @@
       "outerCutOff": 22.0,
       "innerCutOff": 17.0,
 
-      "model": "Preprocessed_Models/cube.model"
+      "assetModel": ["cube", "cube.model"]
+            
+      "position": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "scale": [1.0, 1.0, 1.0]
     }
   ],
 
   "gameObjects": [
     {
-      "model": "Preprocessed_Models/backpack.model",
+    "assetModel": ["backpack", "backpack.model"]
 
       "position": [0.0, 0.0, 0.0],
       "rotation": [0.0, 0.0, 0.0],
       "scale": [1.0, 1.0, 1.0]
     },
     {
-      "model": "Preprocessed_Models/backpack.model",
+    "assetModel": ["backpack", "backpack.model"]
 
       "position": [4.0, 0.0, 2.0],
       "rotation": [0.0, 45.0, 0.0],
       "scale": [0.75, 0.75, 0.75]
     },
     {
-      "model": "Preprocessed_Models/backpack.model",
+    "assetModel": ["backpack", "backpack.model"]
 
       "position": [-5.0, 0.0, 3.0],
       "rotation": [0.0, 120.0, 0.0],
       "scale": [1.5, 1.5, 1.5]
     },
     {
-      "model": "Preprocessed_Models/backpack.model",
+    "assetModel": ["backpack", "backpack.model"]
 
       "position": [2.0, 0.0, -5.0],
       "rotation": [15.0, 200.0, 0.0],
       "scale": [1.2, 1.2, 1.2]
     },
     {
-      "model": "Preprocessed_Models/backpack.model",
+    "assetModel": ["backpack", "backpack.model"]
 
       "position": [-3.0, 0.0, -4.0],
       "rotation": [0.0, 315.0, 0.0],
