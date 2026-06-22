@@ -28,6 +28,7 @@ struct DirectionalLight {
 
 struct PointLight {
     GameObject gameObject;
+
     glm::vec3 position;
     glm::vec3 color;
 
@@ -38,6 +39,7 @@ struct PointLight {
 
 struct SpotLight {
     GameObject gameObject;
+
     glm::vec3 position;
     glm::vec3 color;
 
