@@ -7,19 +7,19 @@ out vec2 TexCoords;
 out vec3 Normal;
 out vec3 FragPos;
 
-uniform mat4 model_transform;
-uniform mat4 view_transform;
-uniform mat4 projection_transform;
+uniform mat4 modelTransform;
+uniform mat4 viewTransform;
+uniform mat4 projectionTransform;
 
 void main() {
-    vec4 worldPos = model_transform * vec4(vInPos, 1.0f);
+    vec4 worldPos = modelTransform * vec4(vInPos, 1.0f);
 
     
     FragPos= vec3(worldPos); // put fragment in world position
 
     TexCoords = vInTexCoord;
 
-    Normal = mat3(transpose(inverse(model_transform))) * vInNormalPos;
+    Normal = mat3(transpose(inverse(modelTransform))) * vInNormalPos;
 
-    gl_Position = projection_transform * view_transform * worldPos;
+    gl_Position = projectionTransform * viewTransform * worldPos;
 }

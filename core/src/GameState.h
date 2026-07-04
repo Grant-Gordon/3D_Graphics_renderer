@@ -8,11 +8,17 @@
 
 class GameState {
 public:
-private:
     GameState();
-    GameState(const LevelMap& levelMap, std::vector<PlayerCharacter> playerCharacters, std::vector<GameObject> dynamicObjects);
+    GameState(const LevelMap& levelMap,
+        std::vector<PlayerCharacter> playerCharacters,
+        std::vector<GameObject> dynamicObjects);
     ~GameState() = default;
 
+    const LevelMap& getLevelMap() const {
+        return m_levelMap;
+    }
+
+private:
     LevelMap m_levelMap;
     std::vector<GameObject> m_dynamicObjects;
     std::vector<PlayerCharacter> m_playerCharacters;

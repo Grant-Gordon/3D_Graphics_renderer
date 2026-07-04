@@ -21,14 +21,14 @@ public:
 
     const std::vector<PointLight> getPointLights() const;
     const std::vector<SpotLight> getSpotLights() const;
-    const DirectionalLight getSun() const;
+    const DirectionalLight getDirectionalLight() const;
 
 private:
     std::vector<GameObject> m_staticObjects;
 
     std::vector<PointLight> m_pointLights;
     std::vector<SpotLight> m_spotLights;
-    DirectionalLight m_sun;
+    DirectionalLight m_directionalLight;
 
     static glm::vec3 parseVec3(const nlohmann::json& arr);
     static Transform parseTransform(const nlohmann::json& json);

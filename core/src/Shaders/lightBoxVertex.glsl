@@ -3,10 +3,10 @@ layout(location=0) in vec3 vInPos; //EXPECTS input to be in attrib spot location
 
 //out vec2 vOutTexCoord; 
 
-uniform mat4 model_transform;
-uniform mat4 view_transform;
-uniform mat4 projection_transform;
+uniform mat4 modelTransform;
+uniform mat4 viewTransform;
+uniform mat4 projectionTransform;
 
 void main(){
-    gl_Position = projection_transform * view_transform * model_transform * vec4(vInPos, 1.0f);
+    gl_Position = projectionTransform * viewTransform * modelTransform * vec4(vInPos, 1.0f);
 }

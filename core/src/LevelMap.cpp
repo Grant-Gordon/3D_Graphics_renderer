@@ -98,6 +98,6 @@ LevelMap::LevelMap(const std::string& levelPath, AssetManager& assetManager) {
         m_spotLights.push_back(parseSpotLight(spotLight, assetManager);
     }
     // Directional Light
-    const nlohmann::json& sun = levelJson["DirectionalLight"];
-    m_sun = parseDirectionalLight(sun, assetManager);
+    const nlohmann::json& directionalLight = levelJson["DirectionalLight"];
+    m_directionalLight = parseDirectionalLight(directionalLight, assetManager);
 }
