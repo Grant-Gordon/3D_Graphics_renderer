@@ -13,17 +13,16 @@ struct Transform {
     glm::vec3 scale;
     glm::vec3 rotation;
 
-    glm::mat4 getModelTransform(){
-        //SRT
-        glm::mat4 modelTransform =glm::translate(glm::mat4(1.0f), position);
-        //TODO: look into quarternions for rotation, currently assuming euler angles but IDK if thats true
+    glm::mat4 getModelTransform() {
+        // SRT
+        glm::mat4 modelTransform = glm::translate(glm::mat4(1.0f), position);
+        // TODO: look into quarternions for rotation, currently assuming euler angles but IDK if thats true
         modelTransform = glm::rotate(modelTransform, rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
         modelTransform = glm::rotate(modelTransform, rotation.y, glm::vec3(1.0f, 1.0f, 0.0f));
         modelTransform = glm::rotate(modelTransform, rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
         modelTransform = glm::scale(modelTransform, scale);
         return modelTransform;
     };
-
 };
 
 class GameObject {
@@ -35,6 +34,10 @@ public:
     // Getters
     const Transform& getTransform() const {
         return m_transform;
+    }
+
+    const Model& getModel() const {
+        return m_model;
     }
 
     // Setters

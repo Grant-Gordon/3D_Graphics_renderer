@@ -1,5 +1,6 @@
 #include "Renderer.h"
 
+#include "Camera.h"
 #include "GameObject.h"
 #include "GameState.h"
 #include "LevelMap.h"
@@ -15,32 +16,34 @@ Renderer::Renderer(Shader& lightCastersSP, Shader& lightSourceSP):
     m_lightSourceSP(lightSourceSP) {};
 
 
-void Renderer::DrawState(const GameState& gameState) {
+void Renderer::DrawState(const GameState& gameState, const Camera& camera) const {
 
     // TODO:: optimize with move or something
     LevelMap levelMap = gameState.getLevelMap();
-    std::vector<PointLight> pointLights = levelMap.getPointLights();
-    std::vector<SpotLight> spotLights = levelMap.getSpotLights();
-    DirectionalLight directionalLight = leveMap.getDirectionalLight();
-    std::vector<GameObject> mapObjects = levelMap.getStaticObjects();
+    const std::vector<PointLight> pointLights = levelMap.getPointLights();
+    const std::vector<SpotLight> spotLights = levelMap.getSpotLights();
+    const DirectionalLight directionalLight = levelMap.getDirectionalLight();
+    const std::vector<GameObject> mapObjects = levelMap.getStaticObjects();
 
     m_castersSP.use();
-    setCastersSPUniforms(go.getTransform().getModelTransform, camera.getViewMatrix, PROJECTION_TRANSFORM,
-        camera.position, pointLights, spotLights, directionalLight);
-    for(GameObject go: mapObjects) { go.draw(); }
+    for(GameObject go: mapObjects) {
+        setCastersSPUniforms(go.getTransform().getModelTransform, camera.getViewMatrix, PROJECTION_TRANSFORM,
+            camera.position, pointLights, spotLights, directionalLight);
+        go.getModel().draw();
+    }
 
     // draw level map
     for(PointLight p: pointLights) {
         m_lightSourceSP.use();
         setLightSourceSPUniforms(p.getTransform().getModelTransform, camera.getViewMatrix, PROJECTION_TRANSFORM,
             p.color);
-        p.draw();
+        p.gameObject.getModel.draw();
     }
     for(SpotLight s: spotLights) {
         m_lightSourceSP.use();
         setLightSourceSPUniforms(s.getTransform().getModelTransform, camera.getViewMatrix, PROJECTION_TRANSFORM,
             s.color);
-        s.draw();
+        s.gameObject.getModel.draw();
     }
 
 

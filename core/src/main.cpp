@@ -1,6 +1,6 @@
 // system
-#include <iostream>
 #include <array>
+#include <iostream>
 
 // Window(SDL), graphic spec (openGL) and gpu-driver/spec binder (glad)
 #include <SDL.h>
@@ -12,11 +12,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 // #include <chrono>
-#include "Shader.h"
 #include "Model.h"
+#include "Shader.h"
 #include "camera.h"
-#include "stb_image.h"
 #include "env.h"
+#include "stb_image.h"
 
 const int SCREEN_WIDTH = 1024;
 const int SCREEN_HEIGHT = 1024;
@@ -70,7 +70,6 @@ void processUserInput(bool& windowShouldClose, Camera& camera, double& deltaTime
 }
 
 
-
 int main() {
     //===========================================
     // SDL init
@@ -107,64 +106,30 @@ int main() {
     glEnable(GL_DEPTH_TEST);
 
 
-
-
     //----------------------------------
     // Core refactor pseudo
     //----------------------------------
-    LevelMap.loadLevelFile(LEVEL_FILE_PATH);
-    PlayerCharacter localPlayer{};
+    constexpr unsigned int PLAYER_ID = 0;
+    PlayerCharacter localPlayer{PLAYER_ID, Camera{}};
 
-    GameState{};
-    Renderer renderer{};
+    AssetManager assetManager{};
 
-    //----------------------------------
-    // Core refactor pseudo
-    //----------------------------------
-
-    //load shaders
-    Shader lightCubeShaderProgram{(SHADERS_DIR + "lightBoxVertex.glsl").c_str(),
-        (SHADERS_DIR + "lightBoxFragment.glsl").c_str()};
-    Shader multiLightShaderProgram{(SHADERS_DIR + "multiLightVertex.glsl").c_str(),
-        (SHADERS_DIR + "multiLightFragment.glsl").c_str()};
-    //
-    // Shader bareModelShaderProgram{(SHADERS_DIR + "bareModelVertex.glsl").c_str(),
-    //     (SHADERS_DIR + "bareModelFragment.glsl").c_str()};
-    //
-    stbi_set_flip_vertically_on_load(true);
+    LevelMap levelMap = LevelMap.loadLevelFile(LEVEL_FILE_PATH, assetManager);
+    std::vector<PlayerCharacter> players = {localPlayer};
+    std::vector<GameObject> dynamicObjects{};
 
 
-    //load Models
-    Model backpackModel((MODEL_DIR + "backpack/backpack.obj").c_str());
-    Model cubeModel ((MODEL_DIR + "cube/Cube.obj").c_str());
+    Shader lightSourceSP{(env::SHADERS_DIR + "lightSourceVertex.glsl").c_str(),
+        (env::SHADERS_DIR + "lightSourceFragment.glsl").c_str()};
+    Shader lightCastersSP{(SHADERS_DIR + "lightCastersVertex.glsl").c_str(),
+        (SHADERS_DIR + "lightCastersFragment.glsl").c_str()};
 
-    glm::vec3 pointLightPositions[] = {
-        glm::vec3( 0.7f, 0.2f, 2.0f),
-        glm::vec3(2.3f, -3.3f, -4.0f),
-        glm::vec3( -4.0f, 2.0f, -12.0f),
-        glm::vec3( 0.0f, 0.0f, -3.0f),
-    };
-    glm::vec3 pointLightColors[] = {
-        glm::vec3(1.0f),
-        glm::vec3(1.0f, 0.0f, 0.0f),
-        glm::vec3(0.0f, 1.0f, 0.0f),
-        glm::vec3(0.0f, 0.0f, 1.0f),
-    };
 
-    // defined outside of loop as projection rarely changes
-    glm::mat4 projectionTransform = glm::mat4(1.0f);
-    projectionTransform =
-        glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 1.0f, 100.0f);
+    GameState gameState{levelMap, players, dyanmicObjects};
+    Renderer renderer{lightCastersSP, lightSourceSP};
 
-    //===========================================
-    // Game Loop
-    //===========================================
-    bool windowShouldClose = false;
-
-    // camera init
-    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-    Camera camera{cameraPos};
-
+    // Render Loop
+    bool windowShouldClose;
     double deltaTime = 0.0f;
     int endFrameTicks = SDL_GetTicks();
     while(!windowShouldClose) {
@@ -173,58 +138,16 @@ int main() {
         // user input
         processUserInput(windowShouldClose, camera, deltaTime);
 
-        // sets what the background color will clear to when glClear() is called
-        glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        renderer.drawState(gameState, localPlayer.getCamera());
 
-        //set projection and view transforms
-        // bareModelShaderProgram.use();
-        // glm::mat4 view_transform = camera.GetViewMatrix();
-        // bareModelShaderProgram.setMat4("projectionTransform", projection_transform);
-        // bareModelShaderProgram.setMat4("viewTransform", view_transform);
-
-        // //render loaded model
-        // glm::mat4 modelTransform = glm::mat4(1.0f);
-        // modelTransform = glm::translate(modelTransform, glm::vec3(0.0f));
-        // modelTransform = glm::scale(modelTransform, glm::vec3(1.0f));
-        // bareModelShaderProgram.setMat4("modelTransform", model_transform);
-        // backpackModel.Draw(bareModelShaderProgram);
-        
-        //set lighting values
-
-        //render light cubes
-        glm::mat4 viewTransform = camera.GetViewMatrix();
-        for(size_t i{0}; i < pointLightPositions.size(); ++i){
-            glm::mat4 modelTransform = glm::mat4(1.0f);
-            modelTransform = glm::translate(modelTransform, pointLightPositions[i]);
-            lightCubeShaderProgram.setVec3("lightColor", pointLightColors[i]);
-
-            lightCubeShaderProgram.setMat4("model_transform", modelTransform);
-            lightCubeShaderProgram.setMat4("projection_transform", projectionTransform);
-            lightCubeShaderProgram.setMat4("view_transform", viewTransform);
-
-            cubeModel.Draw(lightCubeShaderProgram);
-        }
-
-        // set transforms
-        multiLightShaderProgram.use();
-        viewTransform = camera.GetViewMatrix();
-        multiLightShaderProgram.setMat4("projectionTransform", projectionTransform);
-        multiLightShaderProgram.setMat4("viewTransform", viewTransform);
-        //render backpack model
-        glm::mat4 modelTransform = glm::mat4(1.0f);
-        modelTransform = glm::translate(modelTransform, glm::vec3(0.0f));
-        modelTransform = glm::scale(modelTransform, glm::vec3(1.0f));
-        multiLightShaderProgram.setMat4("modelTransform", modelTransform);
-        backpackModel.Draw(multiLightShaderProgram);
-        
-
-
-        //    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
         SDL_GL_SwapWindow(SDL_window);
         endFrameTicks = SDL_GetTicks();
         deltaTime = (endFrameTicks - startFrameTicks) / 1000.0f;
     }
+
+    //----------------------------------
+    // Core refactor pseudo
+    //----------------------------------
 
     //===========================================
     // Deconstructors/ End Game Loop

@@ -37,7 +37,7 @@ public:
     static Model deserialize(const std::string& modelPath); // constructor from model binary
 
     void serialize(const std::string& outFilePath);
-    void Draw(Shader& shader);
+    void draw(Shader& shader);
 
     ~Model() = default;
 
